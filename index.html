@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<style>
+:root{
+  --ground:#F4F6F4; --surface:#FFFFFF; --surface-2:#EDF1EE; --line:#DCE3DF; --line-soft:#E8EDEA;
+  --ink:#15201C; --ink-2:#44534D; --ink-3:#71837B;
+  --accent:#0E5A4A; --accent-soft:#DDEBE4; --accent-ink:#0B4235; --accent-line:#9CC5B6;
+  --brass:#8C6A1C; --brass-soft:#F3E9CE;
+  --good:#1C7A54; --good-soft:#DCEEE3;
+  --warn:#8F6410; --warn-soft:#F6E8CC;
+  --crit:#A03C30; --crit-soft:#F6DFDA;
+  --shadow:0 1px 2px rgba(20,40,34,.06), 0 8px 24px -12px rgba(20,40,34,.18);
+  --shadow-lg:0 24px 60px -24px rgba(12,32,26,.38);
+  --r:10px;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1211; --surface:#161C1A; --surface-2:#1E2523; --line:#2B3532; --line-soft:#232B29;
+    --ink:#E9EFEB; --ink-2:#AEBDB7; --ink-3:#7F908A;
+    --accent:#4FBF9E; --accent-soft:#123029; --accent-ink:#96E3CB; --accent-line:#2C5E51;
+    --brass:#D9B565; --brass-soft:#2E2712;
+    --good:#54C08C; --good-soft:#122E22;
+    --warn:#D8A94A; --warn-soft:#2F2711;
+    --crit:#E28372; --crit-soft:#331B17;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    --shadow-lg:0 24px 60px -24px rgba(0,0,0,.75);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1211; --surface:#161C1A; --surface-2:#1E2523; --line:#2B3532; --line-soft:#232B29;
+  --ink:#E9EFEB; --ink-2:#AEBDB7; --ink-3:#7F908A;
+  --accent:#4FBF9E; --accent-soft:#123029; --accent-ink:#96E3CB; --accent-line:#2C5E51;
+  --brass:#D9B565; --brass-soft:#2E2712;
+  --good:#54C08C; --good-soft:#122E22;
+  --warn:#D8A94A; --warn-soft:#2F2711;
+  --crit:#E28372; --crit-soft:#331B17;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 24px 60px -24px rgba(0,0,0,.75);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- command bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:18px;
+  padding:12px 20px; background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand .mark{
+  width:26px;height:26px;border-radius:7px;background:var(--accent);
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;
+  font-family:var(--mono);align-self:center
+}
+:root[data-theme="dark"] .brand .mark,
+:root:not([data-theme="light"]) .brand .mark{color:#0E1211}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .brand .mark{color:#fff}}
+.brand h1{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em}
+.brand .org{font-size:11px;color:var(--ink-3);letter-spacing:.09em;text-transform:uppercase}
+
+.searchwrap{flex:1 1 auto;position:relative;max-width:640px}
+.searchwrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+#q{
+  width:100%; padding:10px 84px 10px 36px; border-radius:var(--r);
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+}
+#q::placeholder{color:var(--ink-3)}
+#q:focus{background:var(--surface);border-color:var(--accent-line);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.kbd{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  border:1px solid var(--line);border-radius:5px;padding:2px 6px;background:var(--surface);
+  pointer-events:none
+}
+#clearq{position:absolute;right:44px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--ink-3);padding:4px;line-height:0;border-radius:50%}
+#clearq:hover{color:var(--ink)}
+.topright{display:flex;align-items:center;gap:8px;margin-left:auto}
+.ghost{
+  border:1px solid var(--line);background:var(--surface);border-radius:8px;
+  padding:7px 11px;font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px
+}
+.ghost:hover{border-color:var(--accent-line);color:var(--ink)}
+#filterbtn{display:none}
+
+/* ---------- notice ---------- */
+.notice{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 20px;font-size:12.5px;color:var(--ink-2);
+  background:var(--brass-soft);border-bottom:1px solid var(--line);
+}
+.notice b{color:var(--ink);font-weight:600}
+
+/* ---------- shell ---------- */
+.shell{
+  display:grid; grid-template-columns:264px minmax(0,1fr) 400px;
+  align-items:start; gap:0; min-height:calc(100vh - 96px);
+}
+
+/* ---------- facets ---------- */
+.facets{
+  position:sticky; top:96px; align-self:start; height:calc(100vh - 96px); overflow-y:auto;
+  padding:18px 16px 40px; border-right:1px solid var(--line); background:var(--surface);
+}
+.facets-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.facets-head h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+#resetall{border:0;background:none;color:var(--accent);font-size:12px;padding:2px 4px;font-weight:500}
+#resetall[disabled]{color:var(--ink-3);opacity:.6;cursor:default}
+.group{border-top:1px solid var(--line-soft);padding:10px 0}
+.group:first-of-type{border-top:0}
+.group > summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--ink);padding:4px 0
+}
+.group > summary::-webkit-details-marker{display:none}
+.group > summary .chev{transition:transform .18s ease;color:var(--ink-3)}
+.group[open] > summary .chev{transform:rotate(90deg)}
+.opts{display:flex;flex-direction:column;gap:1px;padding:6px 0 2px}
+.opt{
+  display:flex;align-items:center;gap:9px;padding:5px 7px;border-radius:7px;cursor:pointer;
+  font-size:13px;color:var(--ink-2)
+}
+.opt:hover{background:var(--surface-2);color:var(--ink)}
+.opt input{
+  appearance:none;width:15px;height:15px;border:1.5px solid var(--line);border-radius:4px;
+  background:var(--surface);flex:0 0 auto;display:grid;place-items:center;margin:0
+}
+.opt input:checked{background:var(--accent);border-color:var(--accent)}
+.opt input:checked::after{content:"";width:8px;height:4px;border:2px solid var(--surface);border-top:0;border-right:0;transform:rotate(-45deg) translate(0,-1px)}
+:root[data-theme="dark"] .opt input:checked::after{border-color:#0E1211}
+.opt .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.opt.zero{opacity:.42}
+.showmore{border:0;background:none;color:var(--accent);font-size:12px;padding:4px 7px;font-weight:500}
+.showmore:hover{text-decoration:underline}
+.opt:has(input:checked){color:var(--ink);font-weight:500}
+
+/* ---------- results ---------- */
+.results{padding:18px 20px 60px;min-width:0}
+.resbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.count{font-size:13px;color:var(--ink-2)}
+.count b{color:var(--ink);font-family:var(--mono);font-weight:500}
+.sortwrap{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-3)}
+#sort{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px;font-size:12.5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 10px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent-line);
+  font-size:12px;font-weight:500
+}
+.chip button{border:0;background:none;color:inherit;padding:0;line-height:0;opacity:.7}
+.chip button:hover{opacity:1}
+.chip.q{background:var(--surface-2);border-color:var(--line);color:var(--ink-2)}
+
+.list{display:flex;flex-direction:column;gap:8px}
+.card{
+  position:relative;display:grid;grid-template-columns:1fr auto;gap:4px 16px;
+  padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit;
+  transition:border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+.card:hover{border-color:var(--accent-line);box-shadow:var(--shadow)}
+.card[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card .insurer{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.card h3{font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:-.01em;line-height:1.25;margin:2px 0 5px}
+.card h3 mark, .card p mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 1px}
+.card p{margin:0;color:var(--ink-2);font-size:13px;max-width:68ch}
+.card .tags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{
+  font-size:11.5px;padding:2.5px 7px;border-radius:5px;background:var(--surface-2);
+  color:var(--ink-2);border:1px solid var(--line-soft);white-space:nowrap
+}
+.tag.type{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-line)}
+.card .right{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.status.open{background:var(--good-soft);color:var(--good)}
+.status.repricing{background:var(--warn-soft);color:var(--warn)}
+.status.closed{background:var(--crit-soft);color:var(--crit)}
+.pin{
+  border:1px solid var(--line);background:var(--surface);border-radius:7px;
+  padding:4px 8px;font-size:11.5px;color:var(--ink-3);display:inline-flex;gap:5px;align-items:center
+}
+.pin:hover{border-color:var(--accent-line);color:var(--ink)}
+.pin.on{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .pin.on{color:#0E1211}
+
+.empty{
+  border:1px dashed var(--line);border-radius:var(--r);padding:40px 28px;text-align:center;background:var(--surface)
+}
+.empty h3{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.empty p{color:var(--ink-2);margin:0 0 16px}
+.sugg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.sugg button{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
+.sugg button:hover{border-color:var(--accent-line);color:var(--ink)}
+
+/* ---------- record panel ---------- */
+.record{
+  position:sticky; top:96px; align-self:start; height:calc(100vh - 96px); overflow-y:auto;
+  border-left:1px solid var(--line); background:var(--surface); padding:20px 22px 60px;
+}
+.record .placeholder{color:var(--ink-3);font-size:13px;padding-top:60px;text-align:center;line-height:1.7}
+.rec-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.rec-head .insurer{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.record h2{font-family:var(--serif);font-size:25px;font-weight:600;letter-spacing:-.015em;line-height:1.15;margin:4px 0 8px}
+#closerec{border:0;background:none;color:var(--ink-3);padding:4px;line-height:0;display:none}
+.code{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.rec-summary{color:var(--ink-2);margin:12px 0 0;font-size:13.5px;line-height:1.6}
+.sec{margin-top:22px}
+.sec > h4{
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;padding-bottom:6px;border-bottom:1px solid var(--line-soft);margin-bottom:10px
+}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.bullets{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--ink-2)}
+.bullets li{display:flex;gap:9px;line-height:1.5}
+.bullets li::before{content:"";flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:7px}
+.bullets.watch li::before{background:var(--brass);border-radius:1px}
+.taglist{display:flex;flex-wrap:wrap;gap:5px}
+.docs{display:flex;flex-wrap:wrap;gap:6px}
+.doc{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:5px 10px;border-radius:7px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);text-decoration:none
+}
+.doc:hover{border-color:var(--accent-line);color:var(--ink)}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:1fr 92px 24px;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2)}
+.bar .bt{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.bar .bt i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.bar .bn{text-align:right;color:var(--ink-3);font-size:11.5px}
+.jumps{display:flex;flex-direction:column;gap:2px}
+.jump{display:flex;justify-content:space-between;gap:12px;align-items:baseline;width:100%;
+  background:none;border:0;padding:7px 8px;border-radius:7px;text-align:left}
+.jump:hover{background:var(--surface-2)}
+.jump .jn{font-size:13px;color:var(--ink)}
+.jump .jd{font-size:11px;color:var(--ink-3);white-space:nowrap}
+.verified{margin-top:22px;padding-top:12px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+
+/* ---------- compare ---------- */
+.comparebar{
+  position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(140%);
+  display:flex;align-items:center;gap:14px;z-index:50;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px 10px 16px;box-shadow:var(--shadow-lg);transition:transform .22s cubic-bezier(.2,.8,.3,1)
+}
+.comparebar.show{transform:translateX(-50%) translateY(0)}
+.comparebar .lab{font-size:13px;color:var(--ink-2)}
+.comparebar .lab b{color:var(--ink);font-family:var(--mono);font-weight:500}
+.btn{
+  border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;
+  padding:7px 14px;font-size:13px;font-weight:600
+}
+:root[data-theme="dark"] .btn{color:#0E1211}
+.btn:hover{filter:brightness(1.07)}
+.btn[disabled]{opacity:.45;cursor:default;filter:none}
+
+dialog{
+  border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);
+  padding:0;max-width:min(980px,94vw);width:100%;box-shadow:var(--shadow-lg)
+}
+dialog::backdrop{background:rgba(10,22,18,.5);backdrop-filter:blur(2px)}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dlg-head h3{font-family:var(--serif);font-size:20px;font-weight:600}
+.dlg-body{padding:4px 20px 20px;overflow:auto;max-height:min(72vh,720px)}
+table.cmp{border-collapse:collapse;width:100%;font-size:13px}
+table.cmp th,table.cmp td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+table.cmp thead th{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding-top:16px}
+table.cmp thead .insurer{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:block}
+table.cmp thead .nm{font-family:var(--serif);font-size:16px;font-weight:600}
+table.cmp tbody th{
+  font-weight:500;color:var(--ink-3);width:150px;font-size:12px;letter-spacing:.02em
+}
+table.cmp td{color:var(--ink)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1180px){
+  .shell{grid-template-columns:248px minmax(0,1fr)}
+  .record{
+    position:fixed;inset:0 0 0 auto;width:min(460px,92vw);height:100%;z-index:60;
+    box-shadow:var(--shadow-lg);transform:translateX(101%);transition:transform .24s cubic-bezier(.2,.8,.3,1);
+    padding-top:18px
+  }
+  .record.open{transform:none}
+  #closerec{display:block}
+}
+@media (max-width:860px){
+  .topbar{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  .brand{order:1}
+  .topright{order:2}
+  .searchwrap{order:3;flex:1 1 100%;max-width:none}
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .facets{
+    position:fixed;inset:0 auto 0 0;width:min(300px,88vw);height:100%;z-index:70;
+    transform:translateX(-101%);transition:transform .24s cubic-bezier(.2,.8,.3,1);box-shadow:var(--shadow-lg)
+  }
+  .facets.open{transform:none}
+  #filterbtn{display:inline-flex}
+  .results{padding:16px 14px 80px}
+  .card{grid-template-columns:1fr}
+  .card .right{grid-column:auto;grid-row:auto;flex-direction:row;align-items:center;justify-content:flex-start;order:-1}
+  .scrim{
+    position:fixed;inset:0;background:rgba(10,22,18,.42);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s
+  }
+  .scrim.show{opacity:1;pointer-events:auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">PD</span>
+    <div>
+      <h1>Policy Desk</h1>
+      <div class="org">Multi-tied product knowledge bank</div>
+    </div>
+  </div>
+
+  <div class="searchwrap">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <circle cx="7" cy="7" r="4.6"></circle><path d="M10.4 10.4 14 14"></path>
+    </svg>
+    <input id="q" type="search" autocomplete="off" spellcheck="false"
+      placeholder="Search products, insurers, riders, client needs…" aria-label="Search the product bank">
+    <button id="clearq" type="button" aria-label="Clear search" hidden>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    </button>
+    <span class="kbd">/</span>
+  </div>
+
+  <div class="topright">
+    <button id="filterbtn" class="ghost" type="button">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M4.5 8h7M7 12h2"/></svg>
+      Filters <span id="filtercount" class="mono"></span>
+    </button>
+    <button id="themebtn" class="ghost" type="button" aria-label="Switch colour theme">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5z"/></svg>
+      Theme
+    </button>
+  </div>
+</header>
+
+<div class="notice">
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="flex:0 0 auto;margin-top:2px" aria-hidden="true">
+    <circle cx="8" cy="8" r="6.4"/><path d="M8 5.2v.2M8 7.4v3.4"/>
+  </svg>
+  <span><b>Demo catalogue.</b> Insurers and product names here are fictitious and every figure is a placeholder — the point is the data model, search and filter behaviour. Point it at your real panel by replacing the <span class="mono">PRODUCTS</span> array.</span>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+  <aside class="facets" id="facets" aria-label="Filters">
+    <div class="facets-head">
+      <h2>Refine</h2>
+      <button id="resetall" type="button" disabled>Clear all</button>
+    </div>
+    <div id="groups"></div>
+  </aside>
+
+  <main class="results">
+    <div class="resbar">
+      <div class="count" id="count"></div>
+      <div class="sortwrap">
+        <label for="sort">Sort</label>
+        <select id="sort">
+          <option value="relevance">Best match</option>
+          <option value="name">Product A–Z</option>
+          <option value="insurer">Insurer</option>
+          <option value="verified">Recently verified</option>
+        </select>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="list" id="list"></div>
+  </main>
+
+  <aside class="record" id="record" aria-label="Product record" aria-live="polite"></aside>
+</div>
+
+<div class="comparebar" id="comparebar">
+  <span class="lab"><b id="pincount">0</b> pinned to compare</span>
+  <button class="ghost" id="unpinall" type="button">Clear</button>
+  <button class="btn" id="comparebtn" type="button">Compare side by side</button>
+</div>
+
+<dialog id="cmpdlg" aria-labelledby="cmptitle">
+  <div class="dlg-head">
+    <h3 id="cmptitle">Side-by-side comparison</h3>
+    <button class="ghost" id="cmpclose" type="button">Close</button>
+  </div>
+  <div class="dlg-body"><div style="overflow-x:auto"><table class="cmp" id="cmptable"></table></div></div>
+</dialog>
+
+<script>
+/* =======================================================================
+   DATA — the knowledge bank.
+   Fictitious insurers, illustrative figures. One object per product;
+   every facet in the left rail is derived from these fields, so adding a
+   new insurer or product type needs no code change.
+   ======================================================================= */
+const PRODUCTS = [
+{
+  id:"mer-wl-01", code:"MER-WL-310", name:"Meridian Heritage Whole Life", insurer:"Meridian Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Critical illness cover","Legacy planning","Income replacement"],
+  segments:["Mass affluent","Family"], funding:["Cash","SRS"], currency:["SGD"],
+  premiumTerm:["10 years","15 years","20 years","To age 70"], coverageTerm:"To age 100",
+  entryAge:"0 – 65", sumAssured:"S$50,000 – S$5m", minPremium:"S$1,800 / yr",
+  uw:"Full underwriting", status:"Open",
+  summary:"Limited-pay participating whole life with a 3x / 4x / 5x multiplier to age 70 or 75. The workhorse for a client who wants lifetime CI cover plus a cash value they can surrender in retirement.",
+  features:["Multiplier options 2x–5x, selectable to age 70 or 75","Early- and intermediate-stage CI paid from the multiplied sum","Guaranteed insurability at 3 life events without further underwriting","Premium waiver on total permanent disability built in"],
+  watch:["Multiplier drops to base sum at the chosen age — model the client's post-70 gap","Bonus rates cut 0.25% at the last valuation; illustrations use the revised scale"],
+  riders:["Early Critical Illness","Total & Permanent Disability","Payer Premium Waiver","Retrenchment Benefit"],
+  docs:["Product summary","Benefit illustration","Underwriting guide"], verified:"2026-07-28"
+},
+{
+  id:"ard-wl-02", code:"ARD-WL-118", name:"Ardenwood Lifetime Shield", insurer:"Ardenwood Assurance",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Critical illness cover","Legacy planning"],
+  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["5 years","10 years","20 years","25 years"], coverageTerm:"To age 99",
+  entryAge:"1 month – 70", sumAssured:"S$30,000 – S$3m", minPremium:"S$1,200 / yr",
+  uw:"Simplified underwriting", status:"Repricing",
+  statusNote:"Repricing effective 1 Sep 2026 — quotes locked until 25 Aug.",
+  summary:"Entry-level participating whole life with a short 5-year pay option. The simplified underwriting path takes three health questions up to S$400k, which clears most young families in one sitting.",
+  features:["5-year premium term available — useful for bonus-cycle funding","Three-question underwriting up to S$400,000 sum assured","Cash value guaranteed from end of year 3","Terminal illness advance of 100% of sum assured"],
+  watch:["Repricing lands 1 Sep — submit in-flight cases before 25 Aug","No early-CI benefit; pair with a standalone early-CI plan"],
+  riders:["Critical Illness Accelerator","Payer Premium Waiver","Accidental Death"],
+  docs:["Product summary","Benefit illustration","Repricing circular"], verified:"2026-08-14"
+},
+{
+  id:"nor-tl-03", code:"NOR-TL-540", name:"Northgate DirectTerm 30", insurer:"Northgate Life",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Mortgage protection"],
+  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Yearly renewable","To age 65","To age 75","30 years"], coverageTerm:"Up to 30 years",
+  entryAge:"18 – 65", sumAssured:"S$100,000 – S$10m", minPremium:"S$300 / yr",
+  uw:"Full underwriting", status:"Open",
+  summary:"Level term with the cheapest per-dollar death cover on the panel above S$1m. No cash value — pure protection, priced for a breadwinner covering 10x income.",
+  features:["Level premiums for the whole term, no step-ups","Sum assured to S$10m without reinsurance referral","Convertible to any Northgate whole life plan before age 60","Non-smoker rates re-ratable after 12 smoke-free months"],
+  watch:["No CI rider above S$2m sum assured","Term ends flat — no renewal beyond age 75"],
+  riders:["Critical Illness","Total & Permanent Disability","Waiver of Premium"],
+  docs:["Product summary","Rate table"], verified:"2026-08-02"
+},
+{
+  id:"har-mt-04", code:"HAR-MT-220", name:"Harbourlight Mortgage Cover", insurer:"Harbourlight Insurance",
+  category:"Life protection", type:"Decreasing / mortgage term",
+  needs:["Mortgage protection","Income replacement"],
+  segments:["Mass","Family"], funding:["Cash","CPF OA"], currency:["SGD"],
+  premiumTerm:["Single premium","Equal to loan term"], coverageTerm:"5 – 35 years",
+  entryAge:"21 – 60", sumAssured:"Matches outstanding loan", minPremium:"S$420 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Reducing term that tracks an amortising home loan, with a single-premium option payable from CPF OA. The standard answer when a client's HDB or bank loan is the only real exposure.",
+  features:["Cover reduces on a schedule matched to the loan's amortisation","Single premium payable from CPF Ordinary Account","Joint-life first-claim basis for co-borrowers","Assignable to the lender where the bank requires it"],
+  watch:["Interest-rate assumption fixed at inception — a refinance can leave a small shortfall","CPF OA funding restricted to the property being financed"],
+  riders:["Critical Illness (decreasing)","Retrenchment Benefit"],
+  docs:["Product summary","CPF OA funding form"], verified:"2026-06-19"
+},
+{
+  id:"sol-ci-05", code:"SOL-CI-410", name:"Solstice EarlyGuard CI", insurer:"Solstice Life",
+  category:"Life protection", type:"Critical illness (standalone)",
+  needs:["Critical illness cover","Income replacement"],
+  segments:["Mass affluent","Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["To age 70","To age 85","20 years"], coverageTerm:"To age 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1.5m", minPremium:"S$900 / yr",
+  uw:"Full underwriting", status:"Open",
+  summary:"Standalone multi-stage CI paying across early, intermediate and severe stages, with up to three claims for unrelated conditions. Built for topping up a client whose whole life multiplier is already committed.",
+  features:["Up to 3 separate CI claims, 12-month gap between unrelated conditions","Early stage pays 25% (cap S$250,000), intermediate 50%, severe 100%","Special benefit for angioplasty, CIS and diabetic complications","Premiums waived for 12 months after any early-stage claim"],
+  watch:["Standalone plan — no death benefit at all","Cover ceases at 85; a legacy-focused client needs a whole life base"],
+  riders:["Cancer Relapse","Juvenile Conditions","Premium Waiver"],
+  docs:["Product summary","Definitions schedule","Claims guide"], verified:"2026-08-11"
+},
+{
+  id:"van-di-06", code:"VAN-DI-305", name:"Vantage IncomeBridge DI", insurer:"Vantage Mutual",
+  category:"Life protection", type:"Disability income",
+  needs:["Income replacement","Long-term care"],
+  segments:["Mass affluent","Self-employed"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["To age 65","To age 70"], coverageTerm:"To age 65 or 70",
+  entryAge:"19 – 60", sumAssured:"Up to 75% of monthly income", minPremium:"S$540 / yr",
+  uw:"Full underwriting", status:"Open",
+  summary:"Own-occupation disability income to age 65, with a deferred period the client picks from 30, 60 or 90 days. The plan to reach for when a self-employed client has no employer sick-leave floor.",
+  features:["Own-occupation definition for the first 24 months of claim","Benefit escalation of 3% per year while on claim","Partial disability benefit at 50% of the monthly sum","Deferred period 30 / 60 / 90 days — premium falls sharply at 90"],
+  watch:["Manual-trade occupations rated class 3–4 or declined","Benefit offsets against employer and government payouts"],
+  riders:["Benefit Escalator","Return of Premium","Retrenchment Cover"],
+  docs:["Product summary","Occupation classes","Financial underwriting"], verified:"2026-07-05"
+},
+{
+  id:"key-hs-07", code:"KEY-HS-101", name:"Keystone Ward A Integrated Plan", insurer:"Keystone Health",
+  category:"Health & medical", type:"Hospital & surgical (integrated)",
+  needs:["Hospital bills"],
+  segments:["Mass","Mass affluent","Family"], funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable"], coverageTerm:"Lifetime, annually renewable",
+  entryAge:"0 – 75", sumAssured:"S$2m annual limit", minPremium:"S$310 / yr (age 30, MediSave-payable portion)",
+  uw:"Full underwriting", status:"Open",
+  summary:"Private-hospital integrated plan with an as-charged rider that takes the co-payment down to 5%, capped annually. The default hospitalisation answer for a client who wants a choice of specialist.",
+  features:["As-charged for private hospitals and A-ward restructured stays","Rider caps co-payment at 5%, S$3,000 a year","Pre- and post-hospitalisation cover 180 / 365 days","Panel specialist network with pre-authorisation in 3 working days"],
+  watch:["Base plan is MediSave-payable; the rider must be cash","Rider co-payment waived only inside the panel — off-panel reverts to 10%"],
+  riders:["Co-payment Cap Rider","Deductible Buy-down","Overseas Treatment"],
+  docs:["Product summary","Panel list","Pre-authorisation form"], verified:"2026-08-18"
+},
+{
+  id:"key-hc-08", code:"KEY-HC-208", name:"Keystone DailyCash Hospital", insurer:"Keystone Health",
+  category:"Health & medical", type:"Hospital cash",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family","Seniors"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable"], coverageTerm:"To age 80",
+  entryAge:"16 – 65", sumAssured:"S$50 – S$500 per day", minPremium:"S$180 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Fixed daily cash for each night in hospital, paid on top of any shield plan. Cheap, easy to underwrite, and the usual filler for the income a hospital stay costs but no medical plan reimburses.",
+  features:["Pays regardless of any other reimbursement claim","Double benefit in ICU, triple for overseas admission","No claims-based repricing at individual level","Day-surgery lump sum of 5 days' benefit"],
+  watch:["30-day waiting period; maternity excluded for 10 months","Cover ends at 80 — not a substitute for long-term care"],
+  riders:["ICU Booster","Overseas Admission"],
+  docs:["Product summary","Claim form"], verified:"2026-05-30"
+},
+{
+  id:"per-ltc-09", code:"PER-LTC-455", name:"Perpetua CareYears Supplement", insurer:"Perpetua Life",
+  category:"Health & medical", type:"Long-term care",
+  needs:["Long-term care","Legacy planning"],
+  segments:["Mass affluent","Seniors"], funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumTerm:["To age 67","To age 70"], coverageTerm:"Lifetime",
+  entryAge:"30 – 65", sumAssured:"S$600 – S$5,000 / month", minPremium:"S$480 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Monthly payout on failing 2 of 6 activities of daily living, stacking on top of the national severe-disability scheme. The conversation to have with a client whose parents needed a helper.",
+  features:["Payout on 2 ADL failures — one step earlier than the national scheme","Lifetime payout period with no benefit cap","MediSave-payable up to the annual withdrawal limit","Caregiver training grant of S$1,000 on first claim"],
+  watch:["ADL assessment must be by an approved assessor","Premiums are not level after 67 unless the limited term is chosen"],
+  riders:["Inflation Escalator","Death Benefit Top-up"],
+  docs:["Product summary","ADL definitions","MediSave limits"], verified:"2026-07-22"
+},
+{
+  id:"bri-pa-10", code:"BRI-PA-140", name:"Brightwater Accident Complete", insurer:"Brightwater General",
+  category:"Health & medical", type:"Personal accident",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family","Self-employed"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable"], coverageTerm:"Annual, renewable to 75",
+  entryAge:"0 – 70", sumAssured:"S$50,000 – S$1m", minPremium:"S$168 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"No-questions personal accident with a medical reimbursement pot and TCM sub-limit. Guaranteed issue makes it the one plan you can place for a client who has been declined elsewhere.",
+  features:["Guaranteed issue — no health questions at any sum assured","Accidental medical reimbursement to S$10,000 a year","TCM and chiropractic sub-limit of S$1,500","Weekly indemnity for up to 104 weeks"],
+  watch:["Accident-only — no illness cover of any kind","Motorcycling and manual trades loaded 50–100%"],
+  riders:["Infectious Disease","Dengue Lump Sum","Child Extension"],
+  docs:["Product summary","Occupation loading table"], verified:"2026-08-08"
+},
+{
+  id:"mer-en-11", code:"MER-EN-620", name:"Meridian GoalSaver Endowment", insurer:"Meridian Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Child education","Wealth accumulation"],
+  segments:["Mass","Family"], funding:["Cash","SRS"], currency:["SGD"],
+  premiumTerm:["5 years","10 years","Single premium"], coverageTerm:"10 / 15 / 20 years",
+  entryAge:"0 – 65", sumAssured:"Maturity from S$20,000", minPremium:"S$3,000 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Short-pay participating endowment aimed at a dated goal — a university bill or a property downpayment. Guaranteed maturity plus a non-guaranteed bonus, illustrated at 3.00% and 4.25%.",
+  features:["Choice of 10, 15 or 20-year maturity to match the goal date","Guaranteed capital from end of the premium term","Partial withdrawal of accumulated bonus after year 5","Payer waiver on death or TPD of the parent"],
+  watch:["Break-even is year 8 on the 15-year track — surrender before that loses capital","Illustrated yields are not guaranteed; only the maturity floor is"],
+  riders:["Payer Premium Waiver","Critical Illness Waiver"],
+  docs:["Product summary","Benefit illustration","Bonus history"], verified:"2026-06-27"
+},
+{
+  id:"ard-ri-12", code:"ARD-RI-712", name:"Ardenwood RetireFlow Annuity", insurer:"Ardenwood Assurance",
+  category:"Savings & retirement", type:"Retirement income",
+  needs:["Retirement income","Wealth accumulation"],
+  segments:["Mass affluent","Seniors"], funding:["Cash","SRS","CPF SA"], currency:["SGD"],
+  premiumTerm:["5 years","10 years","Single premium"], coverageTerm:"Payout to age 100 or life",
+  entryAge:"25 – 70", sumAssured:"Income from S$500 / month", minPremium:"S$6,000 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Deferred annuity with a client-chosen payout start between 55 and 75, payable for a fixed 20 years or for life. SRS-fundable, which makes it the usual home for a maxed-out SRS account.",
+  features:["Payout start selectable 55 – 75, adjustable once after issue","Life or 20-year certain payout basis","SRS and CPF SA funding both accepted","Accumulate unwanted payouts at a non-guaranteed crediting rate"],
+  watch:["CPF SA funding locks the payout to CPF rules — check before submitting","Deferral change fee of S$150 after the first adjustment"],
+  riders:["Spouse Continuation","Inflation Escalator"],
+  docs:["Product summary","Benefit illustration","SRS funding form"], verified:"2026-08-01"
+},
+{
+  id:"nor-ri-13", code:"NOR-RI-730", name:"Northgate LifeIncome Perpetual", insurer:"Northgate Life",
+  category:"Savings & retirement", type:"Retirement income",
+  needs:["Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW","Seniors"], funding:["Cash","SRS"], currency:["SGD","USD"],
+  premiumTerm:["Single premium","5 years"], coverageTerm:"Whole of life",
+  entryAge:"40 – 75", sumAssured:"Income from S$1,000 / month", minPremium:"S$50,000 single",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Single-premium lifetime income with a second-life continuation, so the payout can run across two generations. USD tranche available for a client whose spending is offshore.",
+  features:["Lifetime payout starting the month after issue","Second life can be nominated at issue and changed once","USD and SGD tranches with separate crediting rates","Return-of-premium floor on death in the first 10 years"],
+  watch:["USD tranche carries currency risk against SGD liabilities","Payouts partly non-guaranteed — stress-test at the lower illustration"],
+  riders:["Second Life Continuation","Legacy Top-up"],
+  docs:["Product summary","Benefit illustration","Currency risk disclosure"], verified:"2026-07-14"
+},
+{
+  id:"sol-en-14", code:"SOL-EN-655", name:"Solstice ShortPay 3", insurer:"Solstice Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass affluent"], funding:["Cash","SRS"], currency:["SGD","USD"],
+  premiumTerm:["3 years"], coverageTerm:"6 years",
+  entryAge:"18 – 70", sumAssured:"Maturity from S$30,000", minPremium:"S$10,000 / yr",
+  uw:"Guaranteed issue", status:"Closed",
+  statusNote:"Tranche closed 30 Jun 2026. In-force servicing only; a new tranche is expected in Q4.",
+  summary:"Three-pay, six-year tranche endowment with a fully guaranteed maturity value. Closed to new business — kept in the bank because in-force clients still ask how it works.",
+  features:["Maturity value 100% guaranteed at issue","Three annual premiums, no medical questions","Assignable and usable as loan collateral"],
+  watch:["Closed to new business — do not quote","Surrender before maturity returns less than premiums paid"],
+  riders:[],
+  docs:["Product summary","Tranche closure notice"], verified:"2026-07-01"
+},
+{
+  id:"van-ilp-15", code:"VAN-ILP-880", name:"Vantage OpenAccess ILP", insurer:"Vantage Mutual",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Retirement income"],
+  segments:["Mass affluent","Family"], funding:["Cash","SRS"], currency:["SGD","USD"],
+  premiumTerm:["10 years","15 years","20 years","To age 65"], coverageTerm:"To age 100",
+  entryAge:"18 – 65", sumAssured:"101% of account value", minPremium:"S$3,600 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Regular-premium ILP with 160 funds and no bid-offer spread after year 10. Minimal insurance charge — this is an accumulation wrapper, not a protection plan.",
+  features:["160 funds across 14 managers, 8 free switches a year","Loyalty bonus of 0.4% of account value from year 11","Premium holiday of up to 24 months after year 3","Top-ups from S$1,000, withdrawals from S$500"],
+  watch:["Distribution cost front-loaded over years 1–3 — surrender early and the client loses most of it","Account value is not guaranteed; the 101% death benefit tracks it down as well as up"],
+  riders:["Critical Illness Charge","Disability Payer","Accidental Death"],
+  docs:["Product highlights sheet","Fund list","Charges schedule"], verified:"2026-08-16"
+},
+{
+  id:"nor-ilp-16", code:"NOR-ILP-905", name:"Northgate SinglePrem Portfolio", insurer:"Northgate Life",
+  category:"Investment-linked", type:"Investment-linked (single premium)",
+  needs:["Wealth accumulation","Legacy planning"],
+  segments:["Mass affluent","HNW"], funding:["Cash","SRS"], currency:["SGD","USD"],
+  premiumTerm:["Single premium"], coverageTerm:"Whole of life",
+  entryAge:"18 – 80", sumAssured:"105% of account value", minPremium:"S$20,000 single",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Single-premium investment wrapper with no lock-in and a nominated-beneficiary payout that bypasses probate delay. Used mostly as a tidier alternative to holding funds in a personal account.",
+  features:["No surrender charge at any point","Nomination of beneficiaries under the Insurance Act","Discretionary portfolio option above S$250,000","Quarterly withdrawal facility with no fee"],
+  watch:["Guaranteed issue, but the 105% death benefit follows market value","Fund-level fees sit on top of the 1.1% wrapper charge"],
+  riders:["Regular Withdrawal Facility"],
+  docs:["Product highlights sheet","Fund list","Nomination form"], verified:"2026-06-11"
+},
+{
+  id:"per-ul-17", code:"PER-UL-990", name:"Perpetua Universal Legacy USD", insurer:"Perpetua Life",
+  category:"Investment-linked", type:"Universal life",
+  needs:["Legacy planning","Estate liquidity"],
+  segments:["HNW"], funding:["Cash","Premium financing"], currency:["USD"],
+  premiumTerm:["Single premium","5 years"], coverageTerm:"To age 121",
+  entryAge:"35 – 80", sumAssured:"US$1m – US$50m", minPremium:"US$150,000 single",
+  uw:"Full underwriting (medical + financial)", status:"Open",
+  summary:"Indexed universal life for estate liquidity, written USD and commonly premium-financed. Every case is a bespoke illustration — treat the figures here as a starting frame, not a quote.",
+  features:["Guaranteed cover to age 121 on the guaranteed-premium basis","Crediting floor of 0% with a 9.5% cap on the indexed account","Premium financing accepted with assignment to the lender","Trust and corporate ownership both supported"],
+  watch:["Financed cases carry real interest-rate risk — run the lapse stress test","Full medical underwriting plus source-of-wealth documentation; 6–10 weeks to issue"],
+  riders:["Terminal Illness Advance","Second Life (joint survivorship)"],
+  docs:["Product summary","Illustration request form","Financing term sheet"], verified:"2026-08-05"
+},
+{
+  id:"mer-ilp-18", code:"MER-ILP-870", name:"Meridian JuniorStart ILP", insurer:"Meridian Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Child education","Wealth accumulation"],
+  segments:["Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["10 years","18 years"], coverageTerm:"To age 75 of the child",
+  entryAge:"0 – 15 (child)", sumAssured:"101% of account value", minPremium:"S$2,400 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Child-owned ILP with the parent as payer, built around an 18-year horizon and a payer-waiver that keeps contributions running if the parent dies or is disabled.",
+  features:["Payer premium waiver on parent's death, TPD or CI","Ownership transfers to the child automatically at 21","Education milestone withdrawals with no charge from year 10","Fee discount of 0.15% for siblings on the same policy family"],
+  watch:["Waiver requires the parent to be separately underwritten","Withdrawals before year 10 carry a 3% charge"],
+  riders:["Payer Waiver (CI)","Child Critical Illness"],
+  docs:["Product highlights sheet","Fund list"], verified:"2026-07-19"
+},
+{
+  id:"har-gr-19", code:"HAR-GR-330", name:"Harbourlight SME Group Benefits", insurer:"Harbourlight Insurance",
+  category:"Business & group", type:"Group employee benefits",
+  needs:["Business continuity","Hospital bills","Income replacement"],
+  segments:["SME"], funding:["Company-paid"], currency:["SGD"],
+  premiumTerm:["Annual"], coverageTerm:"12 months, renewable",
+  entryAge:"16 – 70 (employees)", sumAssured:"Schedule by salary multiple", minPremium:"S$2,500 / yr (min 5 lives)",
+  uw:"Guaranteed issue (5+ lives)", status:"Open",
+  summary:"Modular group scheme from five lives up — GTL, GHS, outpatient and dental, each switchable on its own. The practical entry point for an SME client with no benefits at all today.",
+  features:["Free cover limit of 3x annual salary with no medical evidence","Modules priced separately; drop dental without touching the rest","Portability to individual cover for leavers within 31 days","Claims dashboard with monthly utilisation reporting"],
+  watch:["Renewal loading tracks the scheme's own claims — over 80% utilisation reprices hard","Foreign-worker lives need a separate schedule"],
+  riders:["Outpatient GP & Specialist","Dental","Maternity Extension"],
+  docs:["Scheme summary","Census template","Claims report sample"], verified:"2026-08-12"
+},
+{
+  id:"van-km-20", code:"VAN-KM-360", name:"Vantage Keyman Protector", insurer:"Vantage Mutual",
+  category:"Business & group", type:"Keyman & business succession",
+  needs:["Business continuity","Estate liquidity"],
+  segments:["SME","HNW"], funding:["Company-paid","Cash"], currency:["SGD","USD"],
+  premiumTerm:["10 years","To age 65"], coverageTerm:"To age 75",
+  entryAge:"25 – 65", sumAssured:"S$250,000 – S$20m", minPremium:"S$2,000 / yr",
+  uw:"Full underwriting (medical + financial)", status:"Open",
+  summary:"Corporate-owned term-plus-CI for the person the business cannot lose, structured to fund a buy-sell agreement or a bank covenant.",
+  features:["Company as owner and beneficiary, employee as life assured","Financial underwriting accepts profit-multiple or loan-quantum basis","Cover transferable to the individual on leaving the company","Cross-option agreement template provided"],
+  watch:["Premiums are generally not deductible where the company is beneficiary — refer to the client's tax adviser","Financial underwriting needs two years of audited accounts"],
+  riders:["Critical Illness","Business Loan Cover"],
+  docs:["Product summary","Financial underwriting form","Buy-sell template"], verified:"2026-05-21"
+},
+{
+  id:"bri-tr-21", code:"BRI-TR-070", name:"Brightwater Voyage Travel", insurer:"Brightwater General",
+  category:"General insurance", type:"Travel",
+  needs:["Hospital bills","Travel disruption"],
+  segments:["Mass","Family","Seniors"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Per trip","Annual multi-trip"], coverageTerm:"Per trip or 12 months",
+  entryAge:"No limit", sumAssured:"Medical to S$1m", minPremium:"S$38 per trip",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Per-trip and annual travel cover with pre-existing-condition cover as a paid add-on — rare on the panel, and the reason to quote it for older clients.",
+  features:["Pre-existing conditions covered under the Plus add-on","Emergency evacuation with no sub-limit","Trip cancellation to S$15,000, including insolvency of the airline","Adventure sports included at no extra premium"],
+  watch:["Pre-existing add-on must be bought at inception, not later","Annual plan caps any single trip at 90 days"],
+  riders:["Pre-existing Conditions Plus","Golf & Adventure","Cruise Extension"],
+  docs:["Policy wording","Claim form"], verified:"2026-08-15"
+},
+{
+  id:"bri-hm-22", code:"BRI-HM-085", name:"Brightwater Home & Contents", insurer:"Brightwater General",
+  category:"General insurance", type:"Home",
+  needs:["Property damage","Mortgage protection"],
+  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual","3 years"], coverageTerm:"12 or 36 months",
+  entryAge:"Not applicable", sumAssured:"Contents to S$200,000", minPremium:"S$92 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Contents, renovation and alternative-accommodation cover for HDB and private homes. Small premium, easy cross-sell at the point a client completes a property purchase.",
+  features:["Renovation cover to S$100,000 on a reinstatement basis","Alternative accommodation for 12 months","Domestic helper liability included","3-year policy at a 12% discount"],
+  watch:["Excludes flood in designated low-lying postal districts","Jewellery sub-limit of S$3,000 per item without a valuation"],
+  riders:["Valuables Schedule","Home Emergency Assistance"],
+  docs:["Policy wording","Contents checklist"], verified:"2026-04-30"
+},
+{
+  id:"har-mo-23", code:"HAR-MO-095", name:"Harbourlight Motor Assure", insurer:"Harbourlight Insurance",
+  category:"General insurance", type:"Motor",
+  needs:["Property damage"],
+  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual"], coverageTerm:"12 months",
+  entryAge:"21 – 70 (driver)", sumAssured:"Market value", minPremium:"S$680 / yr",
+  uw:"Simplified underwriting", status:"Repricing",
+  statusNote:"Rates under review; workshop-panel change takes effect 1 Oct 2026.",
+  summary:"Comprehensive motor with an authorised-workshop and a any-workshop tier. Quoted mostly as an accommodation line, but the NCD-protector is genuinely competitive.",
+  features:["NCD protector holds the discount through one claim","Any-workshop tier at a 9% premium loading","Named-driver discount up to 15%","New-for-old replacement in the first 12 months"],
+  watch:["Workshop panel changes 1 Oct — flag it to clients renewing in Sep","Young or newly licensed drivers carry a mandatory excess of S$3,000"],
+  riders:["NCD Protector","Any Workshop","Loss of Use"],
+  docs:["Policy wording","Workshop panel"], verified:"2026-08-17"
+},
+{
+  id:"key-mat-24", code:"KEY-MAT-260", name:"Keystone Maternity & Newborn", insurer:"Keystone Health",
+  category:"Health & medical", type:"Maternity",
+  needs:["Hospital bills","Child education"],
+  segments:["Family"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Single premium"], coverageTerm:"Pregnancy plus 3 years of the child",
+  entryAge:"18 – 45 (mother, from week 13)", sumAssured:"S$10,000 – S$100,000", minPremium:"S$1,100 single",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Pregnancy-complication and congenital-illness cover bought from week 13, converting into a guaranteed-issue child plan at birth. The one product with a real window — miss week 13–32 and it is gone.",
+  features:["Covers 12 pregnancy complications and 18 congenital conditions","Newborn hospital cash from day 1, no waiting period","Guaranteed insurability for the child's own whole life plan","Second-pregnancy discount of 20%"],
+  watch:["Entry window is weeks 13 to 32 only","Multiple births share one benefit limit"],
+  riders:["Child Critical Illness","Newborn Hospital Cash"],
+  docs:["Product summary","Congenital conditions list"], verified:"2026-07-09"
+},
+{
+  id:"ard-tl-25", code:"ARD-TL-575", name:"Ardenwood SimpleTerm Direct", insurer:"Ardenwood Assurance",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Mortgage protection"],
+  segments:["Mass"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["To age 65","To age 70"], coverageTerm:"To age 65 or 70",
+  entryAge:"18 – 55", sumAssured:"S$50,000 – S$400,000", minPremium:"S$240 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Capped-sum term issued on three declarations, no medical exam at any age in range. The fallback when a client needs cover placed this week.",
+  features:["Three health declarations, no medicals up to the S$400,000 cap","Cover in force within 48 hours of a clean declaration","Fixed premium for the whole term","Convertible to the participating whole life within 5 years"],
+  watch:["Hard cap of S$400,000 — stack with a fully underwritten term above that","No CI rider available on this contract"],
+  riders:["Accidental Death","Terminal Illness Advance"],
+  docs:["Product summary","Declaration form"], verified:"2026-06-05"
+},
+{
+  id:"sol-wl-26", code:"SOL-WL-345", name:"Solstice Indexed Whole Life", insurer:"Solstice Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Legacy planning","Wealth accumulation","Critical illness cover"],
+  segments:["Mass affluent","HNW"], funding:["Cash","SRS"], currency:["SGD","USD"],
+  premiumTerm:["10 years","20 years"], coverageTerm:"To age 121",
+  entryAge:"18 – 70", sumAssured:"S$100,000 – S$10m", minPremium:"S$6,000 / yr",
+  uw:"Full underwriting", status:"Open",
+  summary:"Whole life whose cash value is credited against an equity index with a 0% floor. Sits between a par whole life and a universal life for a client who wants upside without market losses.",
+  features:["0% crediting floor with a 10% annual cap","Indexed and fixed accounts, reallocated yearly at no cost","Policy loans at a fixed 4.5% with no impact on crediting","USD denomination available at issue"],
+  watch:["Cap and participation rate are reviewable annually by the insurer","Cash value in the first 10 years is thin — not a liquidity plan"],
+  riders:["Early Critical Illness","Chronic Illness Advance","Premium Waiver"],
+  docs:["Product summary","Benefit illustration","Index crediting explainer"], verified:"2026-08-06"
+},
+{
+  id:"per-ci-27", code:"PER-CI-430", name:"Perpetua Cancer Focus", insurer:"Perpetua Life",
+  category:"Life protection", type:"Critical illness (standalone)",
+  needs:["Critical illness cover","Hospital bills"],
+  segments:["Mass","Mass affluent"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable","To age 75"], coverageTerm:"To age 80",
+  entryAge:"18 – 65", sumAssured:"S$50,000 – S$500,000", minPremium:"S$310 / yr",
+  uw:"Simplified underwriting", status:"Open",
+  summary:"Cancer-only cover at roughly a third of the price of multi-condition CI, paying across three stages with a relapse benefit. For a client with a family cancer history and a tight budget.",
+  features:["Pays at early, intermediate and advanced cancer stages","Relapse benefit after 3 years, up to 2 additional claims","Covers targeted, immuno- and proton therapy costs as a top-up","Four health questions only, up to S$300,000"],
+  watch:["Cancer only — heart attack, stroke and organ failure are all excluded","Family-history loading of 25% where a first-degree relative was diagnosed before 50"],
+  riders:["Relapse Booster","Treatment Cost Top-up"],
+  docs:["Product summary","Staging definitions"], verified:"2026-07-31"
+},
+{
+  id:"nor-en-28", code:"NOR-EN-640", name:"Northgate FlexiSaver 12", insurer:"Northgate Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation","Retirement income"],
+  segments:["Mass","Mass affluent"], funding:["Cash","SRS","CPF OA"], currency:["SGD"],
+  premiumTerm:["6 years","12 years"], coverageTerm:"12 years",
+  entryAge:"18 – 65", sumAssured:"Maturity from S$25,000", minPremium:"S$2,400 / yr",
+  uw:"Guaranteed issue", status:"Open",
+  summary:"Twelve-year endowment with annual cash coupons the client can take or reinvest. CPF OA funding is accepted, which is unusual for an endowment on this panel.",
+  features:["Annual cash coupon from year 3, take or accumulate","CPF Ordinary Account funding accepted","Premium holiday of 12 months once during the term","Maturity value 85% guaranteed at outset"],
+  watch:["CPF-funded policies must return proceeds to CPF at maturity","Taking coupons out reduces the maturity value materially"],
+  riders:["Payer Premium Waiver"],
+  docs:["Product summary","Benefit illustration","CPF funding form"], verified:"2026-06-23"
+},
+{
+  id:"key-hs-29", code:"KEY-HS-115", name:"Keystone Ward B1 Value Plan", insurer:"Keystone Health",
+  category:"Health & medical", type:"Hospital & surgical (integrated)",
+  needs:["Hospital bills"],
+  segments:["Mass","Family","Seniors"], funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable"], coverageTerm:"Lifetime, annually renewable",
+  entryAge:"0 – 75", sumAssured:"S$500,000 annual limit", minPremium:"S$185 / yr (MediSave-payable)",
+  uw:"Full underwriting", status:"Open",
+  summary:"Restructured-hospital B1 integrated plan, fully MediSave-payable at most ages with no cash outlay. The right answer for a price-sensitive client who is happy in a public hospital.",
+  features:["Premiums within MediSave withdrawal limits to age 65","B1 ward and day surgery as charged","Pre- and post-hospitalisation 100 / 180 days","Upgrade path to the Ward A plan without fresh underwriting before 50"],
+  watch:["Private hospital stays are pro-rated to about 35% of the bill","Above 65 part of the premium falls outside the MediSave limit"],
+  riders:["Deductible Buy-down"],
+  docs:["Product summary","MediSave limits","Upgrade form"], verified:"2026-08-18"
+},
+{
+  id:"van-di-30", code:"VAN-DI-320", name:"Vantage RetrenchGuard", insurer:"Vantage Mutual",
+  category:"Life protection", type:"Disability income",
+  needs:["Income replacement"],
+  segments:["Mass","Mass affluent"], funding:["Cash"], currency:["SGD"],
+  premiumTerm:["Annual renewable"], coverageTerm:"To age 60",
+  entryAge:"21 – 55", sumAssured:"Up to 50% of monthly income, 6 months", minPremium:"S$260 / yr",
+  uw:"Simplified underwriting", status:"Closed",
+  statusNote:"Withdrawn 31 Mar 2026 after claims experience. In-force policies renew to age 60.",
+  summary:"Six months of income on involuntary retrenchment. Withdrawn in March 2026 — held in the bank because in-force clients still call about the claim conditions.",
+  features:["Pays 50% of monthly income for up to 6 months","Single 90-day waiting period from policy inception","Claim payable on involuntary retrenchment only"],
+  watch:["Withdrawn — no new business accepted","Resignation, contract expiry and probation exits are all excluded"],
+  riders:[],
+  docs:["Product summary","Withdrawal notice","Claims guide"], verified:"2026-04-02"
+}
+];
+</script>
+
+<script>
+/* =======================================================================
+   APP — faceted search over PRODUCTS. No dependencies, no build step.
+   ======================================================================= */
+const $ = (s, r=document) => r.querySelector(s);
+const el = (t, cls) => { const n = document.createElement(t); if (cls) n.className = cls; return n; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* Facets are declared, not hard-coded into the UI: add a field here and a
+   filter group appears, with live counts. */
+const FACETS = [
+  { key:"category", label:"Category",            get:p => [p.category], open:true },
+  { key:"type",     label:"Product type",        get:p => [p.type],     open:true },
+  { key:"needs",    label:"Client need",         get:p => p.needs },
+  { key:"insurer",  label:"Insurer",             get:p => [p.insurer] },
+  { key:"segments", label:"Client segment",      get:p => p.segments },
+  { key:"funding",  label:"Funding source",      get:p => p.funding },
+  { key:"currency", label:"Currency",            get:p => p.currency },
+  { key:"uw",       label:"Underwriting",        get:p => [p.uw] },
+  { key:"status",   label:"Distribution status", get:p => [p.status] }
+];
+const STATUS_LABEL = { Open:"Open for new business", Repricing:"Repricing pending", Closed:"Closed to new business" };
+const label = (key, v) => key === "status" ? (STATUS_LABEL[v] || v) : v;
+
+const state = { q:"", sel:{}, sort:"relevance", active:null, pinned:[], expanded:new Set() };
+FACETS.forEach(f => state.sel[f.key] = new Set());
+
+/* ---------- search index ---------- */
+const norm = s => s.toLowerCase().replace(/[^a-z0-9%$ ]+/g, " ");
+PRODUCTS.forEach(p => {
+  p._strong = norm([p.name, p.insurer, p.type, p.code, ...p.needs].join(" "));
+  p._all = norm([p.name, p.insurer, p.type, p.code, p.category, p.summary,
+    ...p.needs, ...p.segments, ...p.funding, ...p.currency, ...p.riders,
+    ...p.features, ...p.watch, ...(p.premiumTerm||[]), p.uw, p.coverageTerm].join(" "));
+});
+
+function score(p, tokens){
+  if (!tokens.length) return 0;
+  let s = 0;
+  for (const t of tokens){
+    if (!p._all.includes(t)) return -1;              // every token must land somewhere
+    if (p._strong.includes(t)) s += 10;
+    if (norm(p.name).startsWith(t)) s += 8;
+    if (norm(p.insurer).includes(t)) s += 4;
+    s += 1;
+  }
+  return s;
+}
+
+const tokens = () => norm(state.q).split(/\s+/).filter(Boolean);
+
+function matchesFacets(p, skipKey){
+  return FACETS.every(f => {
+    if (f.key === skipKey) return true;
+    const sel = state.sel[f.key];
+    if (!sel.size) return true;
+    return f.get(p).some(v => sel.has(v));
+  });
+}
+
+function results(){
+  const tk = tokens();
+  const out = [];
+  for (const p of PRODUCTS){
+    if (!matchesFacets(p)) continue;
+    const sc = score(p, tk);
+    if (sc < 0) continue;
+    out.push({ p, sc });
+  }
+  const by = {
+    relevance: (a,b) => b.sc - a.sc || a.p.name.localeCompare(b.p.name),
+    name:      (a,b) => a.p.name.localeCompare(b.p.name),
+    insurer:   (a,b) => a.p.insurer.localeCompare(b.p.insurer) || a.p.name.localeCompare(b.p.name),
+    verified:  (a,b) => b.p.verified.localeCompare(a.p.verified)
+  };
+  return out.sort(by[state.sort]).map(r => r.p);
+}
+
+/* ---------- highlighting ---------- */
+function hl(text){
+  const tk = tokens();
+  if (!tk.length) return esc(text);
+  const re = new RegExp("(" + tk.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|") + ")", "ig");
+  return esc(text).replace(re, "<mark>$1</mark>");
+}
+
+/* ---------- facet rail ---------- */
+function buildFacets(){
+  const wrap = $("#groups");
+  wrap.innerHTML = "";
+  for (const f of FACETS){
+    // counts respect every other facet, so a count is what you would actually get
+    const pool = PRODUCTS.filter(p => matchesFacets(p, f.key) && score(p, tokens()) >= 0);
+    const counts = new Map();
+    for (const p of pool) for (const v of f.get(p)) counts.set(v, (counts.get(v)||0) + 1);
+    const values = [...new Set(PRODUCTS.flatMap(f.get))].sort((a,b) =>
+      (counts.get(b)||0) - (counts.get(a)||0) || String(a).localeCompare(String(b)));
+
+    const d = el("details","group");
+    d.open = f.open || state.sel[f.key].size > 0;
+    const sum = el("summary");
+    sum.innerHTML = '<span>' + esc(f.label) + '</span>' +
+      '<svg class="chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3.5 10.5 8 6 12.5"/></svg>';
+    d.appendChild(sum);
+
+    const opts = el("div","opts");
+    const CAP = 7;
+    const overflow = values.length > CAP + 1 && !state.expanded.has(f.key);
+    const shown = overflow
+      ? values.filter((v,i) => i < CAP || state.sel[f.key].has(v))
+      : values;
+    for (const v of shown){
+      const n = counts.get(v) || 0;
+      const lab = el("label", "opt" + (n ? "" : " zero"));
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = state.sel[f.key].has(v);
+      cb.addEventListener("change", () => {
+        cb.checked ? state.sel[f.key].add(v) : state.sel[f.key].delete(v);
+        render();
+      });
+      const txt = el("span"); txt.textContent = label(f.key, v);
+      const cnt = el("span","n"); cnt.textContent = n;
+      lab.append(cb, txt, cnt);
+      opts.appendChild(lab);
+    }
+    d.appendChild(opts);
+    if (values.length > CAP + 1){
+      const more = el("button","showmore");
+      more.type = "button";
+      more.textContent = overflow ? "Show all " + values.length : "Show fewer";
+      more.onclick = () => {
+        overflow ? state.expanded.add(f.key) : state.expanded.delete(f.key);
+        render();
+      };
+      d.appendChild(more);
+    }
+    wrap.appendChild(d);
+  }
+}
+
+/* ---------- result cards ---------- */
+function statusPill(p){
+  const cls = p.status === "Open" ? "open" : p.status === "Repricing" ? "repricing" : "closed";
+  const s = el("span","status " + cls);
+  s.textContent = STATUS_LABEL[p.status] || p.status;
+  if (p.statusNote) s.title = p.statusNote;
+  return s;
+}
+
+function buildList(list){
+  const box = $("#list");
+  box.innerHTML = "";
+  if (!list.length){
+    const e = el("div","empty");
+    e.innerHTML = '<h3>Nothing matches that yet</h3>' +
+      '<p>Loosen a filter, or start from one of these:</p>';
+    const s = el("div","sugg");
+    ["cancer", "SRS", "guaranteed issue", "mortgage", "MediSave", "own occupation"].forEach(t => {
+      const b = el("button"); b.type = "button"; b.textContent = t;
+      b.onclick = () => { resetAll(false); $("#q").value = t; state.q = t; render(); };
+      s.appendChild(b);
+    });
+    e.appendChild(s);
+    box.appendChild(e);
+    return;
+  }
+  for (const p of list){
+    const c = el("button","card");
+    c.type = "button";
+    c.setAttribute("aria-current", String(state.active === p.id));
+    c.dataset.id = p.id;
+
+    const main = el("div");
+    main.innerHTML = '<div class="insurer">' + hl(p.insurer) + ' <span class="code">· ' + esc(p.code) + '</span></div>' +
+      '<h3>' + hl(p.name) + '</h3><p>' + hl(p.summary) + '</p>';
+
+    const right = el("div","right");
+    right.appendChild(statusPill(p));
+    const pin = el("button", "pin" + (state.pinned.includes(p.id) ? " on" : ""));
+    pin.type = "button";
+    pin.textContent = state.pinned.includes(p.id) ? "Pinned" : "Pin";
+    pin.setAttribute("aria-pressed", String(state.pinned.includes(p.id)));
+    pin.addEventListener("click", ev => { ev.stopPropagation(); togglePin(p.id); });
+    right.appendChild(pin);
+
+    const tags = el("div","tags");
+    const t0 = el("span","tag type"); t0.textContent = p.type; tags.appendChild(t0);
+    p.needs.filter(n => !p.type.toLowerCase().includes(n.toLowerCase()))
+     .slice(0,3).forEach(n => { const t = el("span","tag"); t.textContent = n; tags.appendChild(t); });
+    const t1 = el("span","tag"); t1.textContent = p.funding.join(" · "); tags.appendChild(t1);
+    if (p.currency.includes("USD")) { const t = el("span","tag"); t.textContent = "USD available"; tags.appendChild(t); }
+
+    c.append(main, right, tags);
+    c.addEventListener("click", () => open(p.id));
+    box.appendChild(c);
+  }
+}
+
+/* ---------- default panel: what the bank holds ---------- */
+function glance(){
+  const by = k => PRODUCTS.reduce((m,p) => (m[p[k]] = (m[p[k]]||0)+1, m), {});
+  const cat = by("category"), st = by("status");
+  const insurers = new Set(PRODUCTS.map(p => p.insurer)).size;
+  const recent = [...PRODUCTS].sort((a,b) => b.verified.localeCompare(a.verified)).slice(0,4);
+  const stale = PRODUCTS.filter(p => p.verified < "2026-06-01").length;
+  const bar = Object.entries(cat).sort((a,b) => b[1]-a[1]);
+  const max = bar[0][1];
+  return '<h2 style="font-size:20px;margin-top:2px">The bank at a glance</h2>' +
+    '<p class="rec-summary">' + PRODUCTS.length + ' products across ' + insurers + ' insurers. ' +
+      (st.Open||0) + ' open for new business, ' + (st.Repricing||0) + ' repricing, ' + (st.Closed||0) + ' closed but kept for in-force servicing.</p>' +
+    '<div class="sec"><h4>By category</h4><div class="bars">' +
+      bar.map(([k,v]) => '<div class="bar"><span class="bl">' + esc(k) + '</span>' +
+        '<span class="bt"><i style="width:' + Math.round(v/max*100) + '%"></i></span>' +
+        '<span class="bn mono">' + v + '</span></div>').join("") + '</div></div>' +
+    '<div class="sec"><h4>Verified most recently</h4><div class="jumps">' +
+      recent.map(p => '<button type="button" class="jump" data-jump="' + p.id + '">' +
+        '<span class="jn">' + esc(p.name) + '</span><span class="jd mono">' + esc(fmtDate(p.verified)) + '</span></button>').join("") +
+      '</div></div>' +
+    (stale ? '<div class="sec"><h4>Needs a review</h4><p style="font-size:13px;color:var(--brass);margin:0">' +
+      stale + ' records were last verified before June — worth a check against the insurer circulars before you quote them.</p></div>' : '') +
+    '<div class="sec"><h4>Shortcuts</h4><dl class="kv">' +
+      [['Focus search','/'],['Move through results','↑ ↓'],['Close record','Esc'],['Share this view','copy the URL']]
+        .map(([k,v]) => '<dt>' + k + '</dt><dd class="mono">' + v + '</dd>').join("") + '</dl></div>';
+}
+
+/* ---------- record panel ---------- */
+function buildRecord(){
+  const r = $("#record");
+  const p = PRODUCTS.find(x => x.id === state.active);
+  if (!p){
+    r.classList.remove("open");
+    r.innerHTML = glance();
+    r.querySelectorAll("[data-jump]").forEach(b => b.onclick = () => open(b.dataset.jump));
+    return;
+  }
+  const sec = (title, inner) => '<div class="sec"><h4>' + title + '</h4>' + inner + '</div>';
+  const li = arr => '<ul class="bullets">' + arr.map(x => '<li><span>' + esc(x) + '</span></li>').join("") + '</ul>';
+
+  r.innerHTML =
+    '<div class="rec-head"><div>' +
+      '<div class="insurer">' + esc(p.insurer) + '</div>' +
+      '<h2>' + esc(p.name) + '</h2>' +
+      '<div class="code">' + esc(p.code) + '</div>' +
+    '</div><button id="closerec" type="button" aria-label="Close record">' +
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>' +
+    '</button></div>' +
+    '<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>' +
+    '<p class="rec-summary">' + esc(p.summary) + '</p>' +
+    (p.statusNote ? '<p class="rec-summary" style="color:var(--brass)">' + esc(p.statusNote) + '</p>' : '') +
+    sec("Key terms",
+      '<dl class="kv">' +
+      [["Product type", p.type],["Category", p.category],["Entry age", p.entryAge],
+       ["Sum assured / benefit", p.sumAssured],["Premium term", p.premiumTerm.join(", ")],
+       ["Coverage term", p.coverageTerm],["From", p.minPremium],["Funding", p.funding.join(", ")],
+       ["Currency", p.currency.join(", ")],["Underwriting", p.uw]]
+        .map(([k,v]) => '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>').join("") +
+      '</dl>') +
+    sec("What it does well", li(p.features)) +
+    sec("Watch-outs", '<ul class="bullets watch">' + p.watch.map(x => '<li><span>' + esc(x) + '</span></li>').join("") + '</ul>') +
+    (p.riders.length ? sec("Riders available", '<div class="taglist">' + p.riders.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>') : "") +
+    sec("Fits these needs", '<div class="taglist">' + p.needs.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>') +
+    sec("Documents", '<div class="docs">' + p.docs.map(x =>
+      '<a class="doc" href="#" onclick="return false"><svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 1h5l3 3v9H2z"/><path d="M7 1v3h3"/></svg>' + esc(x) + '</a>').join("") + '</div>') +
+    '<div class="verified"><span>Last verified ' + esc(fmtDate(p.verified)) + '</span><span>Reviewed by A. Tan</span></div>';
+
+  const head = r.querySelector('.rec-head + div');
+  head.appendChild(statusPill(p));
+  const pin = el("button", "pin" + (state.pinned.includes(p.id) ? " on" : ""));
+  pin.type = "button";
+  pin.textContent = state.pinned.includes(p.id) ? "Pinned to compare" : "Pin to compare";
+  pin.onclick = () => togglePin(p.id);
+  head.appendChild(pin);
+
+  $("#closerec").onclick = () => { state.active = null; render(); };
+  r.classList.add("open");
+  r.scrollTop = 0;
+}
+
+function fmtDate(iso){
+  const [y,m,d] = iso.split("-");
+  return d + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1] + " " + y;
+}
+
+/* ---------- active filter chips ---------- */
+function buildChips(){
+  const box = $("#chips");
+  box.innerHTML = "";
+  let any = false;
+  if (state.q){
+    any = true;
+    const c = el("span","chip q");
+    c.innerHTML = '<span>“' + esc(state.q) + '”</span>';
+    const b = el("button"); b.type = "button"; b.setAttribute("aria-label","Clear search text");
+    b.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+    b.onclick = () => { state.q = ""; $("#q").value = ""; render(); };
+    c.appendChild(b); box.appendChild(c);
+  }
+  for (const f of FACETS) for (const v of state.sel[f.key]){
+    any = true;
+    const c = el("span","chip");
+    c.innerHTML = '<span>' + esc(label(f.key, v)) + '</span>';
+    const b = el("button"); b.type = "button"; b.setAttribute("aria-label","Remove filter " + label(f.key, v));
+    b.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+    b.onclick = () => { state.sel[f.key].delete(v); render(); };
+    c.appendChild(b); box.appendChild(c);
+  }
+  $("#resetall").disabled = !any;
+  const n = FACETS.reduce((a,f) => a + state.sel[f.key].size, 0);
+  $("#filtercount").textContent = n ? "(" + n + ")" : "";
+}
+
+/* ---------- compare ---------- */
+function togglePin(id){
+  const i = state.pinned.indexOf(id);
+  if (i >= 0) state.pinned.splice(i,1);
+  else {
+    if (state.pinned.length >= 3) state.pinned.shift();
+    state.pinned.push(id);
+  }
+  render();
+}
+function buildCompareBar(){
+  $("#pincount").textContent = state.pinned.length;
+  $("#comparebar").classList.toggle("show", state.pinned.length > 0);
+  $("#comparebtn").disabled = state.pinned.length < 2;
+}
+function showCompare(){
+  const rows = [
+    ["Insurer", p => p.insurer],
+    ["Product type", p => p.type],
+    ["Status", p => (STATUS_LABEL[p.status] || p.status) + (p.statusNote ? " — " + p.statusNote : "")],
+    ["Entry age", p => p.entryAge],
+    ["Sum assured / benefit", p => p.sumAssured],
+    ["Premium term", p => p.premiumTerm.join(", ")],
+    ["Coverage term", p => p.coverageTerm],
+    ["From", p => p.minPremium],
+    ["Funding", p => p.funding.join(", ")],
+    ["Currency", p => p.currency.join(", ")],
+    ["Underwriting", p => p.uw],
+    ["Client needs", p => p.needs.join(", ")],
+    ["Riders", p => p.riders.length ? p.riders.join(", ") : "—"],
+    ["Watch-outs", p => p.watch.join(" · ")],
+    ["Last verified", p => fmtDate(p.verified)]
+  ];
+  const ps = state.pinned.map(id => PRODUCTS.find(p => p.id === id));
+  $("#cmptable").innerHTML =
+    '<thead><tr><th></th>' + ps.map(p =>
+      '<th><span class="insurer">' + esc(p.insurer) + '</span><span class="nm">' + esc(p.name) + '</span></th>').join("") + '</tr></thead>' +
+    '<tbody>' + rows.map(([k,fn]) =>
+      '<tr><th scope="row">' + esc(k) + '</th>' + ps.map(p => '<td>' + esc(fn(p)) + '</td>').join("") + '</tr>').join("") + '</tbody>';
+  $("#cmpdlg").showModal();
+}
+
+/* ---------- render ---------- */
+function render(){
+  const list = results();
+  buildFacets();
+  buildChips();
+  buildList(list);
+  buildRecord();
+  buildCompareBar();
+  const total = PRODUCTS.length;
+  $("#count").innerHTML = '<b>' + list.length + '</b> of ' + total + ' products' +
+    (state.q || FACETS.some(f => state.sel[f.key].size) ? " match" : " in the bank");
+  $("#clearq").hidden = !state.q;
+  syncHash();
+}
+
+function open(id){
+  state.active = id;
+  render();
+  if (window.matchMedia("(max-width:1180px)").matches) $("#scrim").classList.add("show");
+}
+
+function resetAll(rerender=true){
+  state.q = ""; $("#q").value = "";
+  FACETS.forEach(f => state.sel[f.key].clear());
+  if (rerender) render();
+}
+
+/* ---------- shareable view ---------- */
+let hashLock = false;
+function syncHash(){
+  const parts = [];
+  if (state.q) parts.push("q=" + encodeURIComponent(state.q));
+  FACETS.forEach(f => { if (state.sel[f.key].size) parts.push(f.key + "=" + encodeURIComponent([...state.sel[f.key]].join("|"))); });
+  hashLock = true;
+  history.replaceState(null, "", parts.length ? "#" + parts.join("&") : location.pathname + location.search);
+  hashLock = false;
+}
+function readHash(){
+  const h = location.hash.replace(/^#/,"");
+  if (!h) return;
+  for (const kv of h.split("&")){
+    const [k, v=""] = kv.split("=");
+    const val = decodeURIComponent(v);
+    if (k === "q"){ state.q = val; $("#q").value = val; }
+    else if (state.sel[k]) val.split("|").filter(Boolean).forEach(x => state.sel[k].add(x));
+  }
+}
+
+/* ---------- wiring ---------- */
+$("#q").addEventListener("input", e => { state.q = e.target.value; render(); });
+$("#clearq").addEventListener("click", () => { state.q = ""; $("#q").value = ""; $("#q").focus(); render(); });
+$("#sort").addEventListener("change", e => { state.sort = e.target.value; render(); });
+$("#resetall").addEventListener("click", () => resetAll());
+$("#unpinall").addEventListener("click", () => { state.pinned = []; render(); });
+$("#comparebtn").addEventListener("click", showCompare);
+$("#cmpclose").addEventListener("click", () => $("#cmpdlg").close());
+$("#filterbtn").addEventListener("click", () => {
+  $("#facets").classList.toggle("open");
+  $("#scrim").classList.toggle("show", $("#facets").classList.contains("open"));
+});
+$("#scrim").addEventListener("click", () => {
+  $("#facets").classList.remove("open");
+  $("#scrim").classList.remove("show");
+  if (window.matchMedia("(max-width:1180px)").matches){ state.active = null; render(); }
+});
+$("#themebtn").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = cur === "dark" ? "light" : "dark";
+});
+
+document.addEventListener("keydown", e => {
+  const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (e.key === "/" && !typing){ e.preventDefault(); $("#q").focus(); $("#q").select(); return; }
+  if (e.key === "Escape"){
+    if ($("#cmpdlg").open) return;
+    if (state.active){ state.active = null; $("#scrim").classList.remove("show"); render(); }
+    else if (state.q){ state.q = ""; $("#q").value = ""; render(); }
+    return;
+  }
+  if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !$("#cmpdlg").open){
+    const cards = [...document.querySelectorAll(".card")];
+    if (!cards.length) return;
+    e.preventDefault();
+    const i = cards.findIndex(c => c.dataset.id === state.active);
+    const next = e.key === "ArrowDown" ? Math.min(i + 1, cards.length - 1) : Math.max(i - 1, 0);
+    const id = cards[Math.max(next, 0)].dataset.id;
+    state.active = id; render();
+    document.querySelector('.card[data-id="' + id + '"]').scrollIntoView({block:"nearest"});
+  }
+});
+window.addEventListener("hashchange", () => { if (!hashLock){ resetAll(false); readHash(); render(); } });
+
+readHash();
+render();
+</script>
+</body>
+</html>
