@@ -192,12 +192,23 @@ h1,h2,h3{margin:0;text-wrap:balance}
   color:var(--ink-2);border:1px solid var(--line-soft);white-space:nowrap
 }
 .tag.type{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-line)}
+.tag.est{background:var(--brass-soft);color:var(--brass);border-color:var(--brass-soft);font-family:var(--mono);font-size:11px}
+.esttag{
+  display:inline-block;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--brass);border:1px solid currentColor;border-radius:3px;
+  padding:0 3px;margin-left:6px;vertical-align:1px;line-height:1.5
+}
+.kv dd.isest{color:var(--ink-2)}
+.srcline{font-size:12.5px;color:var(--ink-2);margin:0 0 10px;line-height:1.6}
 .card .right{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
 .status{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
 .status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .status.open{background:var(--good-soft);color:var(--good)}
-.status.repricing{background:var(--warn-soft);color:var(--warn)}
-.status.closed{background:var(--crit-soft);color:var(--crit)}
+.status.superseded{background:var(--warn-soft);color:var(--warn)}
+.status.withdrawn{background:var(--crit-soft);color:var(--crit)}
+.status.confirm{background:var(--brass-soft);color:var(--brass)}
+.status.estchip{background:var(--brass-soft);color:var(--brass)}
+.status.estchip::before{border-radius:1px}
 .pin{
   border:1px solid var(--line);background:var(--surface);border-radius:7px;
   padding:4px 8px;font-size:11.5px;color:var(--ink-3);display:inline-flex;gap:5px;align-items:center
@@ -368,7 +379,10 @@ table.cmp td{color:var(--ink)}
   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="flex:0 0 auto;margin-top:2px" aria-hidden="true">
     <circle cx="8" cy="8" r="6.4"/><path d="M8 5.2v.2M8 7.4v3.4"/>
   </svg>
-  <span><b>Demo catalogue.</b> Insurers and product names here are fictitious and every figure is a placeholder — the point is the data model, search and filter behaviour. Point it at your real panel by replacing the <span class="mono">PRODUCTS</span> array.</span>
+  <span><b>Real products, estimated terms.</b> Insurers, product names, availability changes and the
+  figures under <em>What it does well</em> were taken from the insurers' own pages on 20 Aug 2026 — every
+  record links to its source. Key terms marked <span class="esttag">est.</span> are plausible estimates,
+  not policy terms: read the product summary before you quote. Demo only, not financial advice.</span>
 </div>
 
 <div class="scrim" id="scrim"></div>
@@ -391,7 +405,7 @@ table.cmp td{color:var(--ink)}
           <option value="relevance">Best match</option>
           <option value="name">Product A–Z</option>
           <option value="insurer">Insurer</option>
-          <option value="verified">Recently verified</option>
+          <option value="category">Category</option>
         </select>
       </div>
     </div>
@@ -419,435 +433,1647 @@ table.cmp td{color:var(--ink)}
 <script>
 /* =======================================================================
    DATA — the knowledge bank.
-   Fictitious insurers, illustrative figures. One object per product;
-   every facet in the left rail is derived from these fields, so adding a
-   new insurer or product type needs no code change.
+
+   Real products from insurers on finexis advisory's published product-
+   provider panel. Product names, insurers, availability changes and the
+   headline figures quoted in `features` were taken from the insurers' own
+   public pages on 20 Aug 2026 — each record links to its `source`.
+
+   Detailed terms (entry age, sum assured, premium basis, coverage term,
+   underwriting route, CPF/SRS eligibility) could not be sourced and are
+   plausible ESTIMATES. Every estimated field is named in that record's
+   `est` array and is rendered with an "est." marker. Replacing an estimate
+   with the real term from the product summary is one field edit plus
+   dropping the key from `est`.
    ======================================================================= */
 const PRODUCTS = [
+
+/* ---- Singlife ---- */
 {
-  id:"mer-wl-01", code:"MER-WL-310", name:"Meridian Heritage Whole Life", insurer:"Meridian Life",
+  id:"slf-wlc", name:"Singlife Whole Life Choice", insurer:"Singlife",
   category:"Life protection", type:"Whole life (participating)",
-  needs:["Critical illness cover","Legacy planning","Income replacement"],
-  segments:["Mass affluent","Family"], funding:["Cash","SRS"], currency:["SGD"],
-  premiumTerm:["10 years","15 years","20 years","To age 70"], coverageTerm:"To age 100",
-  entryAge:"0 – 65", sumAssured:"S$50,000 – S$5m", minPremium:"S$1,800 / yr",
-  uw:"Full underwriting", status:"Open",
-  summary:"Limited-pay participating whole life with a 3x / 4x / 5x multiplier to age 70 or 75. The workhorse for a client who wants lifetime CI cover plus a cash value they can surrender in retirement.",
-  features:["Multiplier options 2x–5x, selectable to age 70 or 75","Early- and intermediate-stage CI paid from the multiplied sum","Guaranteed insurability at 3 life events without further underwriting","Premium waiver on total permanent disability built in"],
-  watch:["Multiplier drops to base sum at the chosen age — model the client's post-70 gap","Bonus rates cut 0.25% at the last valuation; illustrations use the revised scale"],
-  riders:["Early Critical Illness","Total & Permanent Disability","Payer Premium Waiver","Retrenchment Benefit"],
-  docs:["Product summary","Benefit illustration","Underwriting guide"], verified:"2026-07-28"
+  needs:["Legacy planning","Critical illness cover","Wealth accumulation"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Participating whole life covering death and terminal illness for life. The base cover builds guaranteed and non-guaranteed cash value from the start of the third policy year through reversionary and terminal bonuses.",
+  features:[
+    "Cash value accrues from the start of policy year 3",
+    "Reversionary bonus declared annually, plus a terminal bonus",
+    "Bonuses depend on the performance of Singapore Life Ltd's participating fund"
+  ],
+  notes:[
+    "Bonus rates are not guaranteed — quote at both illustration rates",
+    "Confirm the current multiplier and rider line-up before recommending"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/life-insurance/whole-life-choice", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"ard-wl-02", code:"ARD-WL-118", name:"Ardenwood Lifetime Shield", insurer:"Ardenwood Assurance",
-  category:"Life protection", type:"Whole life (participating)",
-  needs:["Critical illness cover","Legacy planning"],
-  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["5 years","10 years","20 years","25 years"], coverageTerm:"To age 99",
-  entryAge:"1 month – 70", sumAssured:"S$30,000 – S$3m", minPremium:"S$1,200 / yr",
-  uw:"Simplified underwriting", status:"Repricing",
-  statusNote:"Repricing effective 1 Sep 2026 — quotes locked until 25 Aug.",
-  summary:"Entry-level participating whole life with a short 5-year pay option. The simplified underwriting path takes three health questions up to S$400k, which clears most young families in one sitting.",
-  features:["5-year premium term available — useful for bonus-cycle funding","Three-question underwriting up to S$400,000 sum assured","Cash value guaranteed from end of year 3","Terminal illness advance of 100% of sum assured"],
-  watch:["Repricing lands 1 Sep — submit in-flight cases before 25 Aug","No early-CI benefit; pair with a standalone early-CI plan"],
-  riders:["Critical Illness Accelerator","Payer Premium Waiver","Accidental Death"],
-  docs:["Product summary","Benefit illustration","Repricing circular"], verified:"2026-08-14"
-},
-{
-  id:"nor-tl-03", code:"NOR-TL-540", name:"Northgate DirectTerm 30", insurer:"Northgate Life",
+  id:"slf-elite-term-ii", name:"Singlife Elite Term II", insurer:"Singlife",
   category:"Life protection", type:"Term life",
   needs:["Income replacement","Mortgage protection"],
-  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Yearly renewable","To age 65","To age 75","30 years"], coverageTerm:"Up to 30 years",
-  entryAge:"18 – 65", sumAssured:"S$100,000 – S$10m", minPremium:"S$300 / yr",
-  uw:"Full underwriting", status:"Open",
-  summary:"Level term with the cheapest per-dollar death cover on the panel above S$1m. No cash value — pure protection, priced for a breadwinner covering 10x income.",
-  features:["Level premiums for the whole term, no step-ups","Sum assured to S$10m without reinsurance referral","Convertible to any Northgate whole life plan before age 60","Non-smoker rates re-ratable after 12 smoke-free months"],
-  watch:["No CI rider above S$2m sum assured","Term ends flat — no renewal beyond age 75"],
-  riders:["Critical Illness","Total & Permanent Disability","Waiver of Premium"],
-  docs:["Product summary","Rate table"], verified:"2026-08-02"
+  segments:["Mass","Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium, limited pay option", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Customisable term life with regular and limited-pay options. The limited-pay option was added with the second generation of the plan.",
+  features:[
+    "Regular pay and limited pay both available",
+    "Term and sum assured configurable to the client's cover gap"
+  ],
+  notes:[
+    "Confirm the maximum coverage age and rider set for the current version",
+    "Elite Term (first generation) is the superseded plan — check which one an existing client holds"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/life-insurance/elite-term-ii", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"har-mt-04", code:"HAR-MT-220", name:"Harbourlight Mortgage Cover", insurer:"Harbourlight Insurance",
-  category:"Life protection", type:"Decreasing / mortgage term",
-  needs:["Mortgage protection","Income replacement"],
-  segments:["Mass","Family"], funding:["Cash","CPF OA"], currency:["SGD"],
-  premiumTerm:["Single premium","Equal to loan term"], coverageTerm:"5 – 35 years",
-  entryAge:"21 – 60", sumAssured:"Matches outstanding loan", minPremium:"S$420 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Reducing term that tracks an amortising home loan, with a single-premium option payable from CPF OA. The standard answer when a client's HDB or bank loan is the only real exposure.",
-  features:["Cover reduces on a schedule matched to the loan's amortisation","Single premium payable from CPF Ordinary Account","Joint-life first-claim basis for co-borrowers","Assignable to the lender where the bank requires it"],
-  watch:["Interest-rate assumption fixed at inception — a refinance can leave a small shortfall","CPF OA funding restricted to the property being financed"],
-  riders:["Critical Illness (decreasing)","Retrenchment Benefit"],
-  docs:["Product summary","CPF OA funding form"], verified:"2026-06-19"
+  id:"slf-elite-term-i", name:"Singlife Elite Term", insurer:"Singlife",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Mortgage protection"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Superseded", statusNote:"Superseded by Singlife Elite Term II — kept for in-force servicing.",
+  summary:"The first-generation Elite Term. Held in the bank because in-force clients still ask about conversion and rider options.",
+  features:[
+    "Flexible term life cover"
+  ],
+  notes:[
+    "Do not quote for new business — use Elite Term II",
+    "Check the in-force contract wording rather than the current brochure"
+  ],
+  riders:[],
+  source:"https://ses.singlife.com/content/public/sg/en/public/life-insurance/elite-term.html", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"sol-ci-05", code:"SOL-CI-410", name:"Solstice EarlyGuard CI", insurer:"Solstice Life",
+  id:"slf-cci-ii", name:"Singlife Comprehensive Critical Illness II", insurer:"Singlife",
   category:"Life protection", type:"Critical illness (standalone)",
   needs:["Critical illness cover","Income replacement"],
-  segments:["Mass affluent","Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["To age 70","To age 85","20 years"], coverageTerm:"To age 85",
-  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1.5m", minPremium:"S$900 / yr",
-  uw:"Full underwriting", status:"Open",
-  summary:"Standalone multi-stage CI paying across early, intermediate and severe stages, with up to three claims for unrelated conditions. Built for topping up a client whose whole life multiplier is already committed.",
-  features:["Up to 3 separate CI claims, 12-month gap between unrelated conditions","Early stage pays 25% (cap S$250,000), intermediate 50%, severe 100%","Special benefit for angioplasty, CIS and diabetic complications","Premiums waived for 12 months after any early-stage claim"],
-  watch:["Standalone plan — no death benefit at all","Cover ceases at 85; a legacy-focused client needs a whole life base"],
-  riders:["Cancer Relapse","Juvenile Conditions","Premium Waiver"],
-  docs:["Product summary","Definitions schedule","Claims guide"], verified:"2026-08-11"
+  segments:["Mass","Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 75 or 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Standalone CI paying a lump sum of 100% of the sum assured on diagnosis of any of 135 conditions, across early, intermediate and severe stages.",
+  features:[
+    "135 conditions covered",
+    "100% of sum assured paid from the early stage",
+    "Cover spans early, intermediate and severe stages"
+  ],
+  notes:[
+    "Standalone CI — confirm whether a death benefit is included or needs a separate base plan",
+    "Check the condition list against the client's family history"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/critical-illness-insurance/comprehensive-critical-illness-ii", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"van-di-06", code:"VAN-DI-305", name:"Vantage IncomeBridge DI", insurer:"Vantage Mutual",
+  id:"slf-multipay-ii", name:"Singlife Multipay Critical Illness II", insurer:"Singlife",
+  category:"Life protection", type:"Multi-pay critical illness",
+  needs:["Critical illness cover","Income replacement"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Multi-pay CI that keeps paying across stages and recurrences, up to 900% of the sum assured in total payouts.",
+  features:[
+    "Up to 900% of sum assured in total payouts",
+    "Covers early diagnosis through to recurrent critical illness",
+    "Pays again for specified recurrences"
+  ],
+  notes:[
+    "Waiting periods between claims are the thing clients get wrong — confirm them",
+    "Compare total cost against a larger single-pay CI sum before recommending"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/critical-illness-insurance/multipay-critical-illness-ii", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-multipay-i", name:"Singlife Multipay Critical Illness", insurer:"Singlife",
+  category:"Life protection", type:"Multi-pay critical illness",
+  needs:["Critical illness cover"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Superseded", statusNote:"Superseded by Multipay Critical Illness II.",
+  summary:"First-generation multi-pay CI covering 132 conditions across early, intermediate and severe stages plus specified recurrent conditions.",
+  features:[
+    "132 conditions",
+    "Early, intermediate and severe stages",
+    "Specified recurrent critical illnesses"
+  ],
+  notes:[
+    "In-force servicing only — quote the II for new business",
+    "Condition count and recurrence rules differ from the II"
+  ],
+  riders:[],
+  source:"https://content.singlife.com/en/critical-illness-insurance/multipay-critical-illness", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-di", name:"Singlife Disability Income", insurer:"Singlife",
   category:"Life protection", type:"Disability income",
   needs:["Income replacement","Long-term care"],
-  segments:["Mass affluent","Self-employed"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["To age 65","To age 70"], coverageTerm:"To age 65 or 70",
-  entryAge:"19 – 60", sumAssured:"Up to 75% of monthly income", minPremium:"S$540 / yr",
-  uw:"Full underwriting", status:"Open",
-  summary:"Own-occupation disability income to age 65, with a deferred period the client picks from 30, 60 or 90 days. The plan to reach for when a self-employed client has no employer sick-leave floor.",
-  features:["Own-occupation definition for the first 24 months of claim","Benefit escalation of 3% per year while on claim","Partial disability benefit at 50% of the monthly sum","Deferred period 30 / 60 / 90 days — premium falls sharply at 90"],
-  watch:["Manual-trade occupations rated class 3–4 or declined","Benefit offsets against employer and government payouts"],
-  riders:["Benefit Escalator","Return of Premium","Retrenchment Cover"],
-  docs:["Product summary","Occupation classes","Financial underwriting"], verified:"2026-07-05"
-},
-{
-  id:"key-hs-07", code:"KEY-HS-101", name:"Keystone Ward A Integrated Plan", insurer:"Keystone Health",
-  category:"Health & medical", type:"Hospital & surgical (integrated)",
-  needs:["Hospital bills"],
-  segments:["Mass","Mass affluent","Family"], funding:["CPF MediSave","Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable"], coverageTerm:"Lifetime, annually renewable",
-  entryAge:"0 – 75", sumAssured:"S$2m annual limit", minPremium:"S$310 / yr (age 30, MediSave-payable portion)",
-  uw:"Full underwriting", status:"Open",
-  summary:"Private-hospital integrated plan with an as-charged rider that takes the co-payment down to 5%, capped annually. The default hospitalisation answer for a client who wants a choice of specialist.",
-  features:["As-charged for private hospitals and A-ward restructured stays","Rider caps co-payment at 5%, S$3,000 a year","Pre- and post-hospitalisation cover 180 / 365 days","Panel specialist network with pre-authorisation in 3 working days"],
-  watch:["Base plan is MediSave-payable; the rider must be cash","Rider co-payment waived only inside the panel — off-panel reverts to 10%"],
-  riders:["Co-payment Cap Rider","Deductible Buy-down","Overseas Treatment"],
-  docs:["Product summary","Panel list","Pre-authorisation form"], verified:"2026-08-18"
-},
-{
-  id:"key-hc-08", code:"KEY-HC-208", name:"Keystone DailyCash Hospital", insurer:"Keystone Health",
-  category:"Health & medical", type:"Hospital cash",
-  needs:["Hospital bills","Income replacement"],
-  segments:["Mass","Family","Seniors"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable"], coverageTerm:"To age 80",
-  entryAge:"16 – 65", sumAssured:"S$50 – S$500 per day", minPremium:"S$180 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Fixed daily cash for each night in hospital, paid on top of any shield plan. Cheap, easy to underwrite, and the usual filler for the income a hospital stay costs but no medical plan reimburses.",
-  features:["Pays regardless of any other reimbursement claim","Double benefit in ICU, triple for overseas admission","No claims-based repricing at individual level","Day-surgery lump sum of 5 days' benefit"],
-  watch:["30-day waiting period; maternity excluded for 10 months","Cover ends at 80 — not a substitute for long-term care"],
-  riders:["ICU Booster","Overseas Admission"],
-  docs:["Product summary","Claim form"], verified:"2026-05-30"
-},
-{
-  id:"per-ltc-09", code:"PER-LTC-455", name:"Perpetua CareYears Supplement", insurer:"Perpetua Life",
-  category:"Health & medical", type:"Long-term care",
-  needs:["Long-term care","Legacy planning"],
-  segments:["Mass affluent","Seniors"], funding:["CPF MediSave","Cash"], currency:["SGD"],
-  premiumTerm:["To age 67","To age 70"], coverageTerm:"Lifetime",
-  entryAge:"30 – 65", sumAssured:"S$600 – S$5,000 / month", minPremium:"S$480 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Monthly payout on failing 2 of 6 activities of daily living, stacking on top of the national severe-disability scheme. The conversation to have with a client whose parents needed a helper.",
-  features:["Payout on 2 ADL failures — one step earlier than the national scheme","Lifetime payout period with no benefit cap","MediSave-payable up to the annual withdrawal limit","Caregiver training grant of S$1,000 on first claim"],
-  watch:["ADL assessment must be by an approved assessor","Premiums are not level after 67 unless the limited term is chosen"],
-  riders:["Inflation Escalator","Death Benefit Top-up"],
-  docs:["Product summary","ADL definitions","MediSave limits"], verified:"2026-07-22"
-},
-{
-  id:"bri-pa-10", code:"BRI-PA-140", name:"Brightwater Accident Complete", insurer:"Brightwater General",
-  category:"Health & medical", type:"Personal accident",
-  needs:["Hospital bills","Income replacement"],
-  segments:["Mass","Family","Self-employed"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable"], coverageTerm:"Annual, renewable to 75",
-  entryAge:"0 – 70", sumAssured:"S$50,000 – S$1m", minPremium:"S$168 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"No-questions personal accident with a medical reimbursement pot and TCM sub-limit. Guaranteed issue makes it the one plan you can place for a client who has been declined elsewhere.",
-  features:["Guaranteed issue — no health questions at any sum assured","Accidental medical reimbursement to S$10,000 a year","TCM and chiropractic sub-limit of S$1,500","Weekly indemnity for up to 104 weeks"],
-  watch:["Accident-only — no illness cover of any kind","Motorcycling and manual trades loaded 50–100%"],
-  riders:["Infectious Disease","Dengue Lump Sum","Child Extension"],
-  docs:["Product summary","Occupation loading table"], verified:"2026-08-08"
-},
-{
-  id:"mer-en-11", code:"MER-EN-620", name:"Meridian GoalSaver Endowment", insurer:"Meridian Life",
-  category:"Savings & retirement", type:"Endowment",
-  needs:["Child education","Wealth accumulation"],
-  segments:["Mass","Family"], funding:["Cash","SRS"], currency:["SGD"],
-  premiumTerm:["5 years","10 years","Single premium"], coverageTerm:"10 / 15 / 20 years",
-  entryAge:"0 – 65", sumAssured:"Maturity from S$20,000", minPremium:"S$3,000 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Short-pay participating endowment aimed at a dated goal — a university bill or a property downpayment. Guaranteed maturity plus a non-guaranteed bonus, illustrated at 3.00% and 4.25%.",
-  features:["Choice of 10, 15 or 20-year maturity to match the goal date","Guaranteed capital from end of the premium term","Partial withdrawal of accumulated bonus after year 5","Payer waiver on death or TPD of the parent"],
-  watch:["Break-even is year 8 on the 15-year track — surrender before that loses capital","Illustrated yields are not guaranteed; only the maturity floor is"],
-  riders:["Payer Premium Waiver","Critical Illness Waiver"],
-  docs:["Product summary","Benefit illustration","Bonus history"], verified:"2026-06-27"
-},
-{
-  id:"ard-ri-12", code:"ARD-RI-712", name:"Ardenwood RetireFlow Annuity", insurer:"Ardenwood Assurance",
-  category:"Savings & retirement", type:"Retirement income",
-  needs:["Retirement income","Wealth accumulation"],
-  segments:["Mass affluent","Seniors"], funding:["Cash","SRS","CPF SA"], currency:["SGD"],
-  premiumTerm:["5 years","10 years","Single premium"], coverageTerm:"Payout to age 100 or life",
-  entryAge:"25 – 70", sumAssured:"Income from S$500 / month", minPremium:"S$6,000 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Deferred annuity with a client-chosen payout start between 55 and 75, payable for a fixed 20 years or for life. SRS-fundable, which makes it the usual home for a maxed-out SRS account.",
-  features:["Payout start selectable 55 – 75, adjustable once after issue","Life or 20-year certain payout basis","SRS and CPF SA funding both accepted","Accumulate unwanted payouts at a non-guaranteed crediting rate"],
-  watch:["CPF SA funding locks the payout to CPF rules — check before submitting","Deferral change fee of S$150 after the first adjustment"],
-  riders:["Spouse Continuation","Inflation Escalator"],
-  docs:["Product summary","Benefit illustration","SRS funding form"], verified:"2026-08-01"
-},
-{
-  id:"nor-ri-13", code:"NOR-RI-730", name:"Northgate LifeIncome Perpetual", insurer:"Northgate Life",
-  category:"Savings & retirement", type:"Retirement income",
-  needs:["Retirement income","Legacy planning"],
-  segments:["Mass affluent","HNW","Seniors"], funding:["Cash","SRS"], currency:["SGD","USD"],
-  premiumTerm:["Single premium","5 years"], coverageTerm:"Whole of life",
-  entryAge:"40 – 75", sumAssured:"Income from S$1,000 / month", minPremium:"S$50,000 single",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Single-premium lifetime income with a second-life continuation, so the payout can run across two generations. USD tranche available for a client whose spending is offshore.",
-  features:["Lifetime payout starting the month after issue","Second life can be nominated at issue and changed once","USD and SGD tranches with separate crediting rates","Return-of-premium floor on death in the first 10 years"],
-  watch:["USD tranche carries currency risk against SGD liabilities","Payouts partly non-guaranteed — stress-test at the lower illustration"],
-  riders:["Second Life Continuation","Legacy Top-up"],
-  docs:["Product summary","Benefit illustration","Currency risk disclosure"], verified:"2026-07-14"
-},
-{
-  id:"sol-en-14", code:"SOL-EN-655", name:"Solstice ShortPay 3", insurer:"Solstice Life",
-  category:"Savings & retirement", type:"Endowment",
-  needs:["Wealth accumulation"],
-  segments:["Mass affluent"], funding:["Cash","SRS"], currency:["SGD","USD"],
-  premiumTerm:["3 years"], coverageTerm:"6 years",
-  entryAge:"18 – 70", sumAssured:"Maturity from S$30,000", minPremium:"S$10,000 / yr",
-  uw:"Guaranteed issue", status:"Closed",
-  statusNote:"Tranche closed 30 Jun 2026. In-force servicing only; a new tranche is expected in Q4.",
-  summary:"Three-pay, six-year tranche endowment with a fully guaranteed maturity value. Closed to new business — kept in the bank because in-force clients still ask how it works.",
-  features:["Maturity value 100% guaranteed at issue","Three annual premiums, no medical questions","Assignable and usable as loan collateral"],
-  watch:["Closed to new business — do not quote","Surrender before maturity returns less than premiums paid"],
+  segments:["Mass affluent","Self-employed"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 65",
+  entryAge:"19 – 60", sumAssured:"Up to 75% of income", uw:"Full underwriting",
+  est:["entryAge","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Monthly income replacement of up to 75% of income, with premiums waived while a disability stops the client working.",
+  features:[
+    "Pays up to 75% of income",
+    "Premium waiver while on claim"
+  ],
+  notes:[
+    "Occupation class drives both price and acceptance — check before illustrating",
+    "Confirm the deferred period options and the disability definition"
+  ],
   riders:[],
-  docs:["Product summary","Tranche closure notice"], verified:"2026-07-01"
+  source:"https://singlife.com/en/disability-insurance/disability-income", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"van-ilp-15", code:"VAN-ILP-880", name:"Vantage OpenAccess ILP", insurer:"Vantage Mutual",
+  id:"slf-shield", name:"Singlife Shield", insurer:"Singlife",
+  category:"Health & medical", type:"Integrated Shield Plan",
+  needs:["Hospital bills"],
+  segments:["Mass","Mass affluent","Family"],
+  funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Lifetime, annually renewable",
+  entryAge:"0 – 75", sumAssured:"Annual claim limit from S$500,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Integrated Shield Plan sitting on top of MediShield Life, available as Plan 1 and Plan 2. New riders and a Care Collab benefit were introduced in 2026.",
+  features:[
+    "Plan 1 and Plan 2 tiers",
+    "Premiums payable from MediSave up to the withdrawal limits",
+    "2026 rider refresh including a Care Collab benefit"
+  ],
+  notes:[
+    "Rider premiums are cash — only the base plan draws on MediSave",
+    "Check the 2026 rider changes before renewing an existing client"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/medical-insurance/shield", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-shield-starter", name:"Singlife Shield Starter & Health Plus Starter", insurer:"Singlife",
+  category:"Health & medical", type:"Integrated Shield Plan",
+  needs:["Hospital bills"],
+  segments:["Mass","Family"],
+  funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Lifetime, annually renewable",
+  entryAge:"0 – 75", sumAssured:"Annual claim limit from S$500,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"The entry-tier Shield plan with its matching rider, positioned as the affordable route into private medical cover.",
+  features:[
+    "Lower-premium entry tier",
+    "Health Plus Starter rider designed to pair with it"
+  ],
+  notes:[
+    "Confirm the upgrade path and whether fresh underwriting applies",
+    "Ward entitlement is lower than the main Shield tiers — set expectations"
+  ],
+  riders:["Health Plus Starter"],
+  source:"https://singlife.com/en/medical-insurance/singlife-shield-starter-and-health-plus", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-careshield", name:"Singlife CareShield Standard & Plus", insurer:"Singlife",
+  category:"Health & medical", type:"CareShield supplement",
+  needs:["Long-term care"],
+  segments:["Mass","Mass affluent","Seniors"],
+  funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay to age 67", coverageTerm:"Lifetime",
+  entryAge:"30 – 65", sumAssured:"S$600 – S$5,000 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Supplement to CareShield Life, paying on top of the national severe-disability payout. Standard and Plus tiers.",
+  features:[
+    "Tops up the CareShield Life monthly payout",
+    "Standard and Plus tiers"
+  ],
+  notes:[
+    "ADL trigger and assessment route follow the national scheme — confirm the details",
+    "MediSave use is capped by the annual withdrawal limit"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/disability-insurance/careshield", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-eldershield", name:"Singlife ElderShield Standard & Plus", insurer:"Singlife",
+  category:"Health & medical", type:"ElderShield supplement",
+  needs:["Long-term care"],
+  segments:["Seniors"],
+  funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay to age 65", coverageTerm:"Lifetime",
+  entryAge:"40 – 69", sumAssured:"S$600 – S$3,000 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Confirm", statusNote:"Relevant mainly to the ElderShield cohort — confirm availability for new clients.",
+  summary:"Supplement for clients who remained on ElderShield rather than moving to CareShield Life.",
+  features:[
+    "Standard and Plus tiers",
+    "Designed around the ElderShield payout structure"
+  ],
+  notes:[
+    "Applies to the ElderShield cohort — check which scheme the client is actually on",
+    "Confirm whether new sales are still accepted"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/disability-insurance/eldershield", sourceName:"singlife.com", sourced:"2026-08-20"
+},
+{
+  id:"slf-savvy-invest-ii", name:"Singlife Savvy Invest II", insurer:"Singlife",
   category:"Investment-linked", type:"Investment-linked (regular premium)",
   needs:["Wealth accumulation","Retirement income"],
-  segments:["Mass affluent","Family"], funding:["Cash","SRS"], currency:["SGD","USD"],
-  premiumTerm:["10 years","15 years","20 years","To age 65"], coverageTerm:"To age 100",
-  entryAge:"18 – 65", sumAssured:"101% of account value", minPremium:"S$3,600 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Regular-premium ILP with 160 funds and no bid-offer spread after year 10. Minimal insurance charge — this is an accumulation wrapper, not a protection plan.",
-  features:["160 funds across 14 managers, 8 free switches a year","Loyalty bonus of 0.4% of account value from year 11","Premium holiday of up to 24 months after year 3","Top-ups from S$1,000, withdrawals from S$500"],
-  watch:["Distribution cost front-loaded over years 1–3 — surrender early and the client loses most of it","Account value is not guaranteed; the 101% death benefit tracks it down as well as up"],
-  riders:["Critical Illness Charge","Disability Payer","Accidental Death"],
-  docs:["Product highlights sheet","Fund list","Charges schedule"], verified:"2026-08-16"
+  segments:["Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 100",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Regular-premium investment-linked plan on the Singlife ILP fund range.",
+  features:[
+    "Access to the Singlife ILP fund shelf",
+    "Regular-premium accumulation structure"
+  ],
+  notes:[
+    "Distribution cost is front-loaded on regular-premium ILPs — model an early surrender",
+    "Account value is not guaranteed; so is any death benefit expressed as a percentage of it"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/investment-linked-plan/savvy-invest-ii", sourceName:"singlife.com", sourced:"2026-08-20"
 },
 {
-  id:"nor-ilp-16", code:"NOR-ILP-905", name:"Northgate SinglePrem Portfolio", insurer:"Northgate Life",
-  category:"Investment-linked", type:"Investment-linked (single premium)",
-  needs:["Wealth accumulation","Legacy planning"],
-  segments:["Mass affluent","HNW"], funding:["Cash","SRS"], currency:["SGD","USD"],
-  premiumTerm:["Single premium"], coverageTerm:"Whole of life",
-  entryAge:"18 – 80", sumAssured:"105% of account value", minPremium:"S$20,000 single",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Single-premium investment wrapper with no lock-in and a nominated-beneficiary payout that bypasses probate delay. Used mostly as a tidier alternative to holding funds in a personal account.",
-  features:["No surrender charge at any point","Nomination of beneficiaries under the Insurance Act","Discretionary portfolio option above S$250,000","Quarterly withdrawal facility with no fee"],
-  watch:["Guaranteed issue, but the 105% death benefit follows market value","Fund-level fees sit on top of the 1.1% wrapper charge"],
-  riders:["Regular Withdrawal Facility"],
-  docs:["Product highlights sheet","Fund list","Nomination form"], verified:"2026-06-11"
+  id:"slf-flexi-life-income-ii", name:"Singlife Flexi Life Income II", insurer:"Singlife",
+  category:"Savings & retirement", type:"Lifetime income (participating)",
+  needs:["Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW","Seniors"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Whole of life",
+  entryAge:"18 – 70", sumAssured:"Income from S$500 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"Participating savings plan paying a yearly income for life, plus potential bonuses. Sits in the Singlife Pinnacle range for legacy and wealth planning.",
+  features:[
+    "Yearly income for life",
+    "Non-guaranteed bonuses on top of the guaranteed income",
+    "Positioned for legacy as well as retirement"
+  ],
+  notes:[
+    "Split guaranteed from non-guaranteed income when you present it",
+    "Confirm the income start options and any second-life feature"
+  ],
+  riders:[],
+  source:"https://singlife.com/en/savings/flexi-life-income-ii", sourceName:"singlife.com", sourced:"2026-08-20"
 },
+
+/* ---- Manulife ---- */
 {
-  id:"per-ul-17", code:"PER-UL-990", name:"Perpetua Universal Legacy USD", insurer:"Perpetua Life",
-  category:"Investment-linked", type:"Universal life",
-  needs:["Legacy planning","Estate liquidity"],
-  segments:["HNW"], funding:["Cash","Premium financing"], currency:["USD"],
-  premiumTerm:["Single premium","5 years"], coverageTerm:"To age 121",
-  entryAge:"35 – 80", sumAssured:"US$1m – US$50m", minPremium:"US$150,000 single",
-  uw:"Full underwriting (medical + financial)", status:"Open",
-  summary:"Indexed universal life for estate liquidity, written USD and commonly premium-financed. Every case is a bespoke illustration — treat the figures here as a starting frame, not a quote.",
-  features:["Guaranteed cover to age 121 on the guaranteed-premium basis","Crediting floor of 0% with a 9.5% cap on the indexed account","Premium financing accepted with assignment to the lender","Trust and corporate ownership both supported"],
-  watch:["Financed cases carry real interest-rate risk — run the lapse stress test","Full medical underwriting plus source-of-wealth documentation; 6–10 weeks to issue"],
-  riders:["Terminal Illness Advance","Second Life (joint survivorship)"],
-  docs:["Product summary","Illustration request form","Financing term sheet"], verified:"2026-08-05"
-},
-{
-  id:"mer-ilp-18", code:"MER-ILP-870", name:"Meridian JuniorStart ILP", insurer:"Meridian Life",
-  category:"Investment-linked", type:"Investment-linked (regular premium)",
-  needs:["Child education","Wealth accumulation"],
-  segments:["Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["10 years","18 years"], coverageTerm:"To age 75 of the child",
-  entryAge:"0 – 15 (child)", sumAssured:"101% of account value", minPremium:"S$2,400 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Child-owned ILP with the parent as payer, built around an 18-year horizon and a payer-waiver that keeps contributions running if the parent dies or is disabled.",
-  features:["Payer premium waiver on parent's death, TPD or CI","Ownership transfers to the child automatically at 21","Education milestone withdrawals with no charge from year 10","Fee discount of 0.15% for siblings on the same policy family"],
-  watch:["Waiver requires the parent to be separately underwritten","Withdrawals before year 10 carry a 3% charge"],
-  riders:["Payer Waiver (CI)","Child Critical Illness"],
-  docs:["Product highlights sheet","Fund list"], verified:"2026-07-19"
-},
-{
-  id:"har-gr-19", code:"HAR-GR-330", name:"Harbourlight SME Group Benefits", insurer:"Harbourlight Insurance",
-  category:"Business & group", type:"Group employee benefits",
-  needs:["Business continuity","Hospital bills","Income replacement"],
-  segments:["SME"], funding:["Company-paid"], currency:["SGD"],
-  premiumTerm:["Annual"], coverageTerm:"12 months, renewable",
-  entryAge:"16 – 70 (employees)", sumAssured:"Schedule by salary multiple", minPremium:"S$2,500 / yr (min 5 lives)",
-  uw:"Guaranteed issue (5+ lives)", status:"Open",
-  summary:"Modular group scheme from five lives up — GTL, GHS, outpatient and dental, each switchable on its own. The practical entry point for an SME client with no benefits at all today.",
-  features:["Free cover limit of 3x annual salary with no medical evidence","Modules priced separately; drop dental without touching the rest","Portability to individual cover for leavers within 31 days","Claims dashboard with monthly utilisation reporting"],
-  watch:["Renewal loading tracks the scheme's own claims — over 80% utilisation reprices hard","Foreign-worker lives need a separate schedule"],
-  riders:["Outpatient GP & Specialist","Dental","Maternity Extension"],
-  docs:["Scheme summary","Census template","Claims report sample"], verified:"2026-08-12"
-},
-{
-  id:"van-km-20", code:"VAN-KM-360", name:"Vantage Keyman Protector", insurer:"Vantage Mutual",
-  category:"Business & group", type:"Keyman & business succession",
-  needs:["Business continuity","Estate liquidity"],
-  segments:["SME","HNW"], funding:["Company-paid","Cash"], currency:["SGD","USD"],
-  premiumTerm:["10 years","To age 65"], coverageTerm:"To age 75",
-  entryAge:"25 – 65", sumAssured:"S$250,000 – S$20m", minPremium:"S$2,000 / yr",
-  uw:"Full underwriting (medical + financial)", status:"Open",
-  summary:"Corporate-owned term-plus-CI for the person the business cannot lose, structured to fund a buy-sell agreement or a bank covenant.",
-  features:["Company as owner and beneficiary, employee as life assured","Financial underwriting accepts profit-multiple or loan-quantum basis","Cover transferable to the individual on leaving the company","Cross-option agreement template provided"],
-  watch:["Premiums are generally not deductible where the company is beneficiary — refer to the client's tax adviser","Financial underwriting needs two years of audited accounts"],
-  riders:["Critical Illness","Business Loan Cover"],
-  docs:["Product summary","Financial underwriting form","Buy-sell template"], verified:"2026-05-21"
-},
-{
-  id:"bri-tr-21", code:"BRI-TR-070", name:"Brightwater Voyage Travel", insurer:"Brightwater General",
-  category:"General insurance", type:"Travel",
-  needs:["Hospital bills","Travel disruption"],
-  segments:["Mass","Family","Seniors"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Per trip","Annual multi-trip"], coverageTerm:"Per trip or 12 months",
-  entryAge:"No limit", sumAssured:"Medical to S$1m", minPremium:"S$38 per trip",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Per-trip and annual travel cover with pre-existing-condition cover as a paid add-on — rare on the panel, and the reason to quote it for older clients.",
-  features:["Pre-existing conditions covered under the Plus add-on","Emergency evacuation with no sub-limit","Trip cancellation to S$15,000, including insolvency of the airline","Adventure sports included at no extra premium"],
-  watch:["Pre-existing add-on must be bought at inception, not later","Annual plan caps any single trip at 90 days"],
-  riders:["Pre-existing Conditions Plus","Golf & Adventure","Cruise Extension"],
-  docs:["Policy wording","Claim form"], verified:"2026-08-15"
-},
-{
-  id:"bri-hm-22", code:"BRI-HM-085", name:"Brightwater Home & Contents", insurer:"Brightwater General",
-  category:"General insurance", type:"Home",
-  needs:["Property damage","Mortgage protection"],
-  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual","3 years"], coverageTerm:"12 or 36 months",
-  entryAge:"Not applicable", sumAssured:"Contents to S$200,000", minPremium:"S$92 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Contents, renovation and alternative-accommodation cover for HDB and private homes. Small premium, easy cross-sell at the point a client completes a property purchase.",
-  features:["Renovation cover to S$100,000 on a reinstatement basis","Alternative accommodation for 12 months","Domestic helper liability included","3-year policy at a 12% discount"],
-  watch:["Excludes flood in designated low-lying postal districts","Jewellery sub-limit of S$3,000 per item without a valuation"],
-  riders:["Valuables Schedule","Home Emergency Assistance"],
-  docs:["Policy wording","Contents checklist"], verified:"2026-04-30"
-},
-{
-  id:"har-mo-23", code:"HAR-MO-095", name:"Harbourlight Motor Assure", insurer:"Harbourlight Insurance",
-  category:"General insurance", type:"Motor",
-  needs:["Property damage"],
-  segments:["Mass","Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual"], coverageTerm:"12 months",
-  entryAge:"21 – 70 (driver)", sumAssured:"Market value", minPremium:"S$680 / yr",
-  uw:"Simplified underwriting", status:"Repricing",
-  statusNote:"Rates under review; workshop-panel change takes effect 1 Oct 2026.",
-  summary:"Comprehensive motor with an authorised-workshop and a any-workshop tier. Quoted mostly as an accommodation line, but the NCD-protector is genuinely competitive.",
-  features:["NCD protector holds the discount through one claim","Any-workshop tier at a 9% premium loading","Named-driver discount up to 15%","New-for-old replacement in the first 12 months"],
-  watch:["Workshop panel changes 1 Oct — flag it to clients renewing in Sep","Young or newly licensed drivers carry a mandatory excess of S$3,000"],
-  riders:["NCD Protector","Any Workshop","Loss of Use"],
-  docs:["Policy wording","Workshop panel"], verified:"2026-08-17"
-},
-{
-  id:"key-mat-24", code:"KEY-MAT-260", name:"Keystone Maternity & Newborn", insurer:"Keystone Health",
-  category:"Health & medical", type:"Maternity",
-  needs:["Hospital bills","Child education"],
-  segments:["Family"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Single premium"], coverageTerm:"Pregnancy plus 3 years of the child",
-  entryAge:"18 – 45 (mother, from week 13)", sumAssured:"S$10,000 – S$100,000", minPremium:"S$1,100 single",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Pregnancy-complication and congenital-illness cover bought from week 13, converting into a guaranteed-issue child plan at birth. The one product with a real window — miss week 13–32 and it is gone.",
-  features:["Covers 12 pregnancy complications and 18 congenital conditions","Newborn hospital cash from day 1, no waiting period","Guaranteed insurability for the child's own whole life plan","Second-pregnancy discount of 20%"],
-  watch:["Entry window is weeks 13 to 32 only","Multiple births share one benefit limit"],
-  riders:["Child Critical Illness","Newborn Hospital Cash"],
-  docs:["Product summary","Congenital conditions list"], verified:"2026-07-09"
-},
-{
-  id:"ard-tl-25", code:"ARD-TL-575", name:"Ardenwood SimpleTerm Direct", insurer:"Ardenwood Assurance",
+  id:"mnl-protect-term-ii", name:"ManuProtect Term (II)", insurer:"Manulife",
   category:"Life protection", type:"Term life",
   needs:["Income replacement","Mortgage protection"],
-  segments:["Mass"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["To age 65","To age 70"], coverageTerm:"To age 65 or 70",
-  entryAge:"18 – 55", sumAssured:"S$50,000 – S$400,000", minPremium:"S$240 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Capped-sum term issued on three declarations, no medical exam at any age in range. The fallback when a client needs cover placed this week.",
-  features:["Three health declarations, no medicals up to the S$400,000 cap","Cover in force within 48 hours of a clean declaration","Fixed premium for the whole term","Convertible to the participating whole life within 5 years"],
-  watch:["Hard cap of S$400,000 — stack with a fully underwritten term above that","No CI rider available on this contract"],
-  riders:["Accidental Death","Terminal Illness Advance"],
-  docs:["Product summary","Declaration form"], verified:"2026-06-05"
-},
-{
-  id:"sol-wl-26", code:"SOL-WL-345", name:"Solstice Indexed Whole Life", insurer:"Solstice Life",
-  category:"Life protection", type:"Whole life (participating)",
-  needs:["Legacy planning","Wealth accumulation","Critical illness cover"],
-  segments:["Mass affluent","HNW"], funding:["Cash","SRS"], currency:["SGD","USD"],
-  premiumTerm:["10 years","20 years"], coverageTerm:"To age 121",
-  entryAge:"18 – 70", sumAssured:"S$100,000 – S$10m", minPremium:"S$6,000 / yr",
-  uw:"Full underwriting", status:"Open",
-  summary:"Whole life whose cash value is credited against an equity index with a 0% floor. Sits between a par whole life and a universal life for a client who wants upside without market losses.",
-  features:["0% crediting floor with a 10% annual cap","Indexed and fixed accounts, reallocated yearly at no cost","Policy loans at a fixed 4.5% with no impact on crediting","USD denomination available at issue"],
-  watch:["Cap and participation rate are reviewable annually by the insurer","Cash value in the first 10 years is thin — not a liquidity plan"],
-  riders:["Early Critical Illness","Chronic Illness Advance","Premium Waiver"],
-  docs:["Product summary","Benefit illustration","Index crediting explainer"], verified:"2026-08-06"
-},
-{
-  id:"per-ci-27", code:"PER-CI-430", name:"Perpetua Cancer Focus", insurer:"Perpetua Life",
-  category:"Life protection", type:"Critical illness (standalone)",
-  needs:["Critical illness cover","Hospital bills"],
-  segments:["Mass","Mass affluent"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable","To age 75"], coverageTerm:"To age 80",
-  entryAge:"18 – 65", sumAssured:"S$50,000 – S$500,000", minPremium:"S$310 / yr",
-  uw:"Simplified underwriting", status:"Open",
-  summary:"Cancer-only cover at roughly a third of the price of multi-condition CI, paying across three stages with a relapse benefit. For a client with a family cancer history and a tight budget.",
-  features:["Pays at early, intermediate and advanced cancer stages","Relapse benefit after 3 years, up to 2 additional claims","Covers targeted, immuno- and proton therapy costs as a top-up","Four health questions only, up to S$300,000"],
-  watch:["Cancer only — heart attack, stroke and organ failure are all excluded","Family-history loading of 25% where a first-degree relative was diagnosed before 50"],
-  riders:["Relapse Booster","Treatment Cost Top-up"],
-  docs:["Product summary","Staging definitions"], verified:"2026-07-31"
-},
-{
-  id:"nor-en-28", code:"NOR-EN-640", name:"Northgate FlexiSaver 12", insurer:"Northgate Life",
-  category:"Savings & retirement", type:"Endowment",
-  needs:["Wealth accumulation","Retirement income"],
-  segments:["Mass","Mass affluent"], funding:["Cash","SRS","CPF OA"], currency:["SGD"],
-  premiumTerm:["6 years","12 years"], coverageTerm:"12 years",
-  entryAge:"18 – 65", sumAssured:"Maturity from S$25,000", minPremium:"S$2,400 / yr",
-  uw:"Guaranteed issue", status:"Open",
-  summary:"Twelve-year endowment with annual cash coupons the client can take or reinvest. CPF OA funding is accepted, which is unusual for an endowment on this panel.",
-  features:["Annual cash coupon from year 3, take or accumulate","CPF Ordinary Account funding accepted","Premium holiday of 12 months once during the term","Maturity value 85% guaranteed at outset"],
-  watch:["CPF-funded policies must return proceeds to CPF at maturity","Taking coupons out reduces the maturity value materially"],
-  riders:["Payer Premium Waiver"],
-  docs:["Product summary","Benefit illustration","CPF funding form"], verified:"2026-06-23"
-},
-{
-  id:"key-hs-29", code:"KEY-HS-115", name:"Keystone Ward B1 Value Plan", insurer:"Keystone Health",
-  category:"Health & medical", type:"Hospital & surgical (integrated)",
-  needs:["Hospital bills"],
-  segments:["Mass","Family","Seniors"], funding:["CPF MediSave","Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable"], coverageTerm:"Lifetime, annually renewable",
-  entryAge:"0 – 75", sumAssured:"S$500,000 annual limit", minPremium:"S$185 / yr (MediSave-payable)",
-  uw:"Full underwriting", status:"Open",
-  summary:"Restructured-hospital B1 integrated plan, fully MediSave-payable at most ages with no cash outlay. The right answer for a price-sensitive client who is happy in a public hospital.",
-  features:["Premiums within MediSave withdrawal limits to age 65","B1 ward and day surgery as charged","Pre- and post-hospitalisation 100 / 180 days","Upgrade path to the Ward A plan without fresh underwriting before 50"],
-  watch:["Private hospital stays are pro-rated to about 35% of the bill","Above 65 part of the premium falls outside the MediSave limit"],
-  riders:["Deductible Buy-down"],
-  docs:["Product summary","MediSave limits","Upgrade form"], verified:"2026-08-18"
-},
-{
-  id:"van-di-30", code:"VAN-DI-320", name:"Vantage RetrenchGuard", insurer:"Vantage Mutual",
-  category:"Life protection", type:"Disability income",
-  needs:["Income replacement"],
-  segments:["Mass","Mass affluent"], funding:["Cash"], currency:["SGD"],
-  premiumTerm:["Annual renewable"], coverageTerm:"To age 60",
-  entryAge:"21 – 55", sumAssured:"Up to 50% of monthly income, 6 months", minPremium:"S$260 / yr",
-  uw:"Simplified underwriting", status:"Closed",
-  statusNote:"Withdrawn 31 Mar 2026 after claims experience. In-force policies renew to age 60.",
-  summary:"Six months of income on involuntary retrenchment. Withdrawn in March 2026 — held in the bank because in-force clients still call about the claim conditions.",
-  features:["Pays 50% of monthly income for up to 6 months","Single 90-day waiting period from policy inception","Claim payable on involuntary retrenchment only"],
-  watch:["Withdrawn — no new business accepted","Resignation, contract expiry and probation exits are all excluded"],
+  segments:["Mass","Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Regular-premium term life covering death and terminal illness for a chosen period. Carries a quit-smoking incentive.",
+  features:[
+    "Death and terminal illness cover for a chosen term",
+    "Quit-smoking incentive on the premium basis"
+  ],
+  notes:[
+    "Confirm the current term and coverage-age options",
+    "Check rider availability if CI is needed on the same contract"
+  ],
   riders:[],
-  docs:["Product summary","Withdrawal notice","Claims guide"], verified:"2026-04-02"
+  source:"https://www.manulife.com.sg/en/solutions/life/term-life-insurance/manuprotect-term.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"mnl-protect-decreasing", name:"ManuProtect Decreasing (II)", insurer:"Manulife",
+  category:"Life protection", type:"Decreasing / mortgage term",
+  needs:["Mortgage protection","Income replacement"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"Matched to the loan term",
+  entryAge:"21 – 60", sumAssured:"Reduces on a chosen schedule", uw:"Simplified underwriting",
+  est:["entryAge","coverageTerm","uw"],
+  status:"Open",
+  summary:"Decreasing term where the client chooses the interest rate and policy term the reduction schedule is built on. A Lite variant is also offered.",
+  features:[
+    "Client-selected interest rate and policy term",
+    "Lite variant available"
+  ],
+  notes:[
+    "The chosen rate fixes the schedule — a refinance can open a shortfall",
+    "Confirm whether the plan can be assigned to the lender"
+  ],
+  riders:[],
+  source:"https://www.manulife.com.sg/en/solutions/life/term-life-insurance/manuprotect-decreasing.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"mnl-readybuilder-ii", name:"Manulife ReadyBuilder (II)", insurer:"Manulife",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation","Child education"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 3 to 10 years", coverageTerm:"6 – 20 years",
+  entryAge:"0 – 65", sumAssured:"Maturity from S$20,000", uw:"No health underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Savings plan built around flexibility: premiums can be paused while the policy stays in force, and a retrenchment benefit applies during prolonged unemployment.",
+  features:[
+    "Premium pause keeps the policy in force",
+    "Retrenchment benefit on prolonged unemployment",
+    "Designed for medium- to long-term accumulation"
+  ],
+  notes:[
+    "Confirm how a premium pause affects the illustrated maturity value",
+    "Check the qualifying conditions on the retrenchment benefit"
+  ],
+  riders:[],
+  source:"https://www.manulife.com.sg/en/solutions/save/savings-plans/ready-builder.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"mnl-ready-lifeincome-iii", name:"Manulife Ready LifeIncome (III)", insurer:"Manulife",
+  category:"Savings & retirement", type:"Lifetime income (participating)",
+  needs:["Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Whole of life",
+  entryAge:"18 – 70", sumAssured:"Income from S$500 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"Whole-life savings plan structured around an ongoing income stream rather than a maturity lump sum.",
+  features:[
+    "Whole-life income structure",
+    "Participating fund exposure"
+  ],
+  notes:[
+    "Confirm when income starts and whether it can be deferred or accumulated",
+    "Separate guaranteed from non-guaranteed income in the client conversation"
+  ],
+  riders:[],
+  source:"https://www.manulife.com.sg/en/solutions/life/whole-life-insurance/ready-lifeincome.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"mnl-retireready-iii", name:"Manulife RetireReady Plus (III)", insurer:"Manulife",
+  category:"Savings & retirement", type:"Retirement income",
+  needs:["Retirement income"],
+  segments:["Mass affluent","Seniors"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Payout to age 100",
+  entryAge:"25 – 70", sumAssured:"Income from S$500 a month", uw:"No health underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Retirement plan with the option of a guaranteed fixed monthly income.",
+  features:[
+    "Guaranteed fixed monthly income option",
+    "Retirement-dated payout structure"
+  ],
+  notes:[
+    "Confirm SRS eligibility with the insurer before assuming it",
+    "Check the payout start ages and whether they can be changed later"
+  ],
+  riders:[],
+  source:"https://www.manulife.com.sg/en/solutions/save/retirement/retire-ready-plus.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"mnl-readyprotect", name:"Manulife ReadyProtect", insurer:"Manulife",
+  category:"Health & medical", type:"Personal accident",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"Annual, renewable",
+  entryAge:"0 – 70", sumAssured:"S$50,000 – S$1m", uw:"No health underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Personal accident cover positioned as an affordable standalone policy.",
+  features:[
+    "Accident cover as a standalone contract"
+  ],
+  notes:[
+    "Accident-only — no illness cover",
+    "Check occupation loadings for manual trades"
+  ],
+  riders:[],
+  source:"https://www.manulife.com.sg/en/solutions/health/accident/manulife-ready-protect.html", sourceName:"manulife.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- HSBC Life ---- */
+{
+  id:"hsbc-life-treasure-iii", name:"HSBC Life Treasure III", insurer:"HSBC Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Critical illness cover","Legacy planning","Income replacement"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Multiplier-based participating whole life with an embedded accidental death benefit, launched to address the protection gap through multiplied cover.",
+  features:[
+    "Multiplied coverage over the base sum assured",
+    "Embedded accidental death benefit",
+    "Early Critical Illness Benefit III rider covers 170 conditions across early, intermediate and advanced stages, including 14 special and 14 juvenile conditions"
+  ],
+  notes:[
+    "Multiplier steps down at a set age — model the client's cover after it does",
+    "Confirm which rider generation is being quoted"
+  ],
+  riders:["Early Critical Illness Benefit III"],
+  source:"https://www.insurance.hsbc.com.sg/life-and-critical-illness/products/life-treasure-iii/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"hsbc-life-treasure-ii", name:"HSBC Life Treasure II", insurer:"HSBC Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Critical illness cover","Legacy planning"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Superseded", statusNote:"Life Treasure III is the current generation.",
+  summary:"The previous generation of HSBC Life's participating whole life. Held for in-force servicing and conversion questions.",
+  features:[
+    "Participating whole life with multiplier options"
+  ],
+  notes:[
+    "Quote Life Treasure III for new business",
+    "Rider definitions differ from the III — read the in-force contract"
+  ],
+  riders:[],
+  source:"https://www.insurance.hsbc.com.sg/life-and-critical-illness/products/life-treasure-ii/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"hsbc-term-protector", name:"HSBC Life Term Protector & Term Protector Prime", insurer:"HSBC Life",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Critical illness cover","Mortgage protection"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"Options to age 50, 55, 60, 65, 70, 75, 85 and 99",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Two term plans updated with enhanced critical illness coverage, now covering up to age 85 with base and rider terms selectable across eight coverage ages.",
+  features:[
+    "Coverage ages of 50, 55, 60, 65, 70, 75, 85 and 99",
+    "Enhanced critical illness coverage on both plans",
+    "Prime variant sits above the standard plan"
+  ],
+  notes:[
+    "Work out which of the two variants the client's budget and CI need points to",
+    "Confirm the CI definitions attached to the current version"
+  ],
+  riders:[],
+  source:"https://www.about.hsbc.com.sg/news-and-media/hsbc-life-launches-multiplier-based-whole-life-policy", sourceName:"about.hsbc.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"hsbc-term-protect-advantage", name:"HSBC Life Term Protect Advantage", insurer:"HSBC Life",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Protection-range term plan from HSBC Life.",
+  features:[
+    "Term life protection"
+  ],
+  notes:[
+    "Compare against Term Protector and Term Protector Prime before quoting",
+    "Terms not verified here — read the product summary"
+  ],
+  riders:[],
+  source:"https://www.insurance.hsbc.com.sg/life-and-critical-illness/products/term-protect-advantage/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"hsbc-wealth-voyage", name:"HSBC Life Wealth Voyage", insurer:"HSBC Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Retirement income"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"Minimum investment period of 15, 20 or 25 years",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","uw","funding"],
+  status:"Open",
+  summary:"Regular-premium ILP for medium- to long-term accumulation, with a choice of three minimum investment periods and a stack of bonuses for staying invested.",
+  features:[
+    "Minimum investment periods of 15, 20 or 25 years",
+    "Start-up bonus, power-up bonus and loyalty bonus while invested",
+    "Built for medium- to long-term wealth growth"
+  ],
+  notes:[
+    "Bonuses are conditional on staying invested — quantify the cost of an early exit",
+    "Confirm the fund shelf and charges against the product highlights sheet"
+  ],
+  riders:[],
+  source:"https://www.insurance.hsbc.com.sg/investment/products/wealth-voyage/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"hsbc-wealth-abundance", name:"HSBC Life Wealth Abundance", insurer:"HSBC Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Retirement income"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"Minimum investment period of 10 years",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","uw","funding"],
+  status:"Open",
+  summary:"ILP that allocates 100% of regular premiums into the chosen funds at an account maintenance fee from 2.1% a year, with a shorter ten-year commitment than Wealth Voyage.",
+  features:[
+    "100% of regular premiums invested; account maintenance fee from 2.1% a year",
+    "Start-up bonus of up to 12% of first-year regular premiums",
+    "Close to 60 funds, including dividend-paying funds for an income stream",
+    "Top-up and withdrawal flexibility; minimum investment period of 10 years"
+  ],
+  notes:[
+    "The account maintenance fee is charged on the account, so it scales with value — model it over the full term",
+    "Dividend-paying funds can pay out of capital; check the fund factsheets"
+  ],
+  riders:[],
+  source:"https://www.insurance.hsbc.com.sg/investment/products/wealth-abundance/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- Tokio Marine Life ---- */
+{
+  id:"tmls-term-assure-ii", name:"TM Term Assure (II)", insurer:"Tokio Marine Life",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Mortgage protection"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Tokio Marine Life's current-generation term plan.",
+  features:[
+    "Term life protection"
+  ],
+  notes:[
+    "Confirm the coverage terms and rider set from the brochure",
+    "Second generation — check which version an in-force client holds"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/protect/life-insurance/tm-term-assure--ii.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-flexiassurance", name:"TM FlexiAssurance", insurer:"Tokio Marine Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Legacy planning","Critical illness cover"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay — 10, 15 or 20 years", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Life insurance plan in Tokio Marine Life's protection range.",
+  features:[
+    "Life protection with a flexible configuration"
+  ],
+  notes:[
+    "Terms not verified here — read the product summary before quoting",
+    "Check the multiplier and rider options"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/protect/life-insurance/tm-flexiassurance.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-protect-pa", name:"TM Protect PA", insurer:"Tokio Marine Life",
+  category:"Health & medical", type:"Personal accident",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"Annual, renewable",
+  entryAge:"0 – 70", sumAssured:"S$50,000 – S$1m", uw:"No health underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw"],
+  status:"Open",
+  summary:"Personal accident plan from Tokio Marine Life.",
+  features:[
+    "Accident cover"
+  ],
+  notes:[
+    "Accident-only cover",
+    "Confirm occupation classes and any infectious-disease extension"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/protect/personal-accident/tm-protect-pa.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-gowealthenrich", name:"#goWealthEnrich", insurer:"Tokio Marine Life",
+  category:"Investment-linked", type:"Investment-linked (single premium)",
+  needs:["Wealth accumulation"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Single premium", coverageTerm:"Whole of life",
+  entryAge:"18 – 75", sumAssured:"Minimal death cover", uw:"No health underwriting",
+  est:["entryAge","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"One-time premium ILP that pays a bonus and invests immediately, with minimal insurance cover on death — an accumulation wrapper rather than a protection plan.",
+  features:[
+    "Single premium with a bonus at inception",
+    "Immediate investment into ILP funds",
+    "Minimal insurance protection on death"
+  ],
+  notes:[
+    "Treat it as an investment wrapper, not cover",
+    "Confirm the bonus conditions and any lock-in"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/investments/plans/goWealthEnrich.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-atlas-wealth", name:"TM Atlas Wealth", insurer:"Tokio Marine Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 100",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"ILP positioned across wealth accumulation, retirement, legacy and protection objectives.",
+  features:[
+    "Configurable across accumulation, retirement, legacy and protection"
+  ],
+  notes:[
+    "Charges and allocation rates decide the outcome — read the charges schedule",
+    "Confirm the fund range currently available"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/investments/plans/tm-atlas-wealth.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-goelite", name:"#goElite / #goElite Secure", insurer:"Tokio Marine Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 100",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Paired ILPs in the #go range, with the Secure variant adding a protection slant to the same accumulation objectives.",
+  features:[
+    "Two variants covering accumulation, retirement, legacy and protection"
+  ],
+  notes:[
+    "Establish which variant the client is being quoted",
+    "Compare charges against #goAffluence and TM Atlas Wealth"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/investments/plans/goElite.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+{
+  id:"tmls-wealth-future", name:"Wealth@Future", insurer:"Tokio Marine Life",
+  category:"Investment-linked", type:"Investment-linked (regular premium)",
+  needs:["Wealth accumulation","Child education"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 100",
+  entryAge:"18 – 65", sumAssured:"101% of account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"ILP in the Tokio Marine Life investment range aimed at longer-horizon goals.",
+  features:[
+    "Long-horizon investment-linked accumulation"
+  ],
+  notes:[
+    "Terms not verified here — read the product highlights sheet",
+    "Check the minimum investment period"
+  ],
+  riders:[],
+  source:"https://www.tokiomarine.com/sg/en/life/products/personal/investments/plans/wealth-future.html", sourceName:"tokiomarine.com", sourced:"2026-08-20"
+},
+
+/* ---- China Taiping ---- */
+{
+  id:"ctp-i-secure-legacy-ii", name:"i-Secure Legacy (II)", insurer:"China Taiping",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Critical illness cover","Legacy planning"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5, 10, 15, 20 or 25 years", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"Up to 4x high coverage", uw:"Full underwriting",
+  est:["entryAge","uw"],
+  status:"Open",
+  summary:"Whole life protection plan offering a lifetime guaranteed benefit for death and critical illness, with up to 4x high coverage against death, terminal illness and TPD and up to 161 conditions.",
+  features:[
+    "Up to 4x high coverage for death, terminal illness and TPD",
+    "Up to 161 medical conditions covered",
+    "Premium terms of 5, 10, 15, 20 or 25 years, with lifetime cover after"
+  ],
+  notes:[
+    "Confirm where the 4x multiplier ends and what the client keeps after it",
+    "Check the condition list and staging definitions"
+  ],
+  riders:[],
+  source:"https://www.sg.cntaiping.com/en/personal/life/whole-life/i-secure-legacy-ii/", sourceName:"sg.cntaiping.com", sourced:"2026-08-20"
+},
+{
+  id:"ctp-infinite-legacy-ii", name:"Infinite Legacy (II)", insurer:"China Taiping",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Legacy planning","Income replacement"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay — 10, 15 or 20 years", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"Up to 3.5x immediate high coverage", uw:"Full underwriting",
+  est:["entryAge","premiumBasis","uw"],
+  status:"Open",
+  summary:"Whole life plan giving up to 3.5x immediate high coverage against death and terminal illness.",
+  features:[
+    "Up to 3.5x immediate high coverage",
+    "Death and terminal illness cover for life"
+  ],
+  notes:[
+    "High coverage is against death and TI — confirm whether CI is included or a rider",
+    "Check the age at which the multiplier steps down"
+  ],
+  riders:[],
+  source:"https://www.sg.cntaiping.com/en/personal/life/whole-life/", sourceName:"sg.cntaiping.com", sourced:"2026-08-20"
+},
+{
+  id:"ctp-infinite-harvest-iii", name:"Infinite Harvest (III)", insurer:"China Taiping",
+  category:"Savings & retirement", type:"Lifetime income (participating)",
+  needs:["Retirement income","Legacy planning"],
+  segments:["Mass affluent","HNW"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Whole of life",
+  entryAge:"18 – 70", sumAssured:"Income from S$500 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"Whole life legacy plan providing lifetime passive income, either to supplement the client's lifestyle or to run on for the next generation.",
+  features:[
+    "Lifetime income stream",
+    "Structured to continue for future generations"
+  ],
+  notes:[
+    "Confirm the second-life or continuation mechanics",
+    "Separate guaranteed from non-guaranteed income"
+  ],
+  riders:[],
+  source:"https://www.sg.cntaiping.com/en/personal/wealth/savings/", sourceName:"sg.cntaiping.com", sourced:"2026-08-20"
+},
+{
+  id:"ctp-i-assure99", name:"i-Assure99", insurer:"China Taiping",
+  category:"Life protection", type:"Whole life (non-participating)",
+  needs:["Income replacement","Legacy planning"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Limited pay — 10 or 20 years", coverageTerm:"To age 99",
+  entryAge:"18 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","premiumBasis","uw"],
+  status:"Open",
+  summary:"Non-participating whole life protection to age 99 — cover without the bonus mechanics of a par plan.",
+  features:[
+    "Non-participating: no bonus, no illustration uncertainty",
+    "Cover to age 99"
+  ],
+  notes:[
+    "No cash value build-up of a par plan — set the client's expectation",
+    "Compare cost against a long term plan to 99"
+  ],
+  riders:[],
+  source:"https://www.sg.cntaiping.com/en/personal/life/whole-life/", sourceName:"sg.cntaiping.com", sourced:"2026-08-20"
+},
+{
+  id:"ctp-i-save", name:"i-Save", insurer:"China Taiping",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Single premium", coverageTerm:"3 years",
+  entryAge:"0 – 65", sumAssured:"Maturity from S$20,000", uw:"No health underwriting",
+  est:["entryAge","sumAssured","uw","funding"],
+  status:"Open",
+  summary:"Three-year single-premium savings plan with guaranteed returns at maturity.",
+  features:[
+    "Single premium, three-year term",
+    "Guaranteed return at maturity"
+  ],
+  notes:[
+    "Tranche products get pulled and re-launched — confirm the current tranche and rate",
+    "Check the surrender value before maturity"
+  ],
+  riders:[],
+  source:"https://www.sg.cntaiping.com/en/personals/landing-life-wealth/wealth/saving/i-save.html", sourceName:"sg.cntaiping.com", sourced:"2026-08-20"
+},
+
+/* ---- China Life ---- */
+{
+  id:"cl-savereward-101-iii-sgd", name:"China Life SaveReward 101 Series III (SGD)", insurer:"China Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"3 years of premiums", coverageTerm:"5 years",
+  entryAge:"0 – 65", sumAssured:"100% capital guaranteed at maturity", uw:"No health underwriting",
+  est:["entryAge","uw","funding"],
+  status:"Open",
+  summary:"Five-year endowment with 2.08% p.a. guaranteed return at maturity, needing only three years of premiums, with 100% capital guarantee and death cover.",
+  features:[
+    "2.08% p.a. guaranteed return at maturity",
+    "Premiums for 3 years, matures at 5",
+    "100% capital guarantee plus death coverage"
+  ],
+  notes:[
+    "Tranche rates change between series — confirm the rate currently on sale",
+    "Early surrender breaks the capital guarantee"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/about-us/news-center/get-2-08-p-guaranteed-returns-china-life-savereward-101-series-iii-sgd-5-year", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"cl-savereward-101-iii-rmb", name:"China Life SaveReward 101 Series III (RMB)", insurer:"China Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass affluent"],
+  funding:["Cash","SRS"], currency:["RMB"],
+  premiumBasis:"Limited pay — 3 to 10 years", coverageTerm:"5 years",
+  entryAge:"0 – 65", sumAssured:"100% capital guaranteed at maturity", uw:"No health underwriting",
+  est:["entryAge","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"RMB-denominated five-year endowment with a 3.40% p.a. guaranteed return and 100% capital guarantee at maturity.",
+  features:[
+    "3.40% p.a. guaranteed return over 5 years",
+    "100% capital guarantee at maturity",
+    "RMB denominated"
+  ],
+  notes:[
+    "The higher rate comes with RMB currency risk against SGD spending — say so plainly",
+    "Confirm the conversion mechanics at maturity"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/about-us/news-center/enjoy-3-40-p-guaranteed-returns-in-5-years-china-life-savereward-101-series", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"cl-savereward-101-ii", name:"China Life SaveReward 101 Series II", insurer:"China Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD","RMB"],
+  premiumBasis:"Limited pay — 3 to 10 years", coverageTerm:"5 years",
+  entryAge:"0 – 65", sumAssured:"100% capital guaranteed", uw:"No health underwriting",
+  est:["entryAge","premiumBasis","uw","funding"],
+  status:"Superseded", statusNote:"Series III is the tranche currently marketed.",
+  summary:"The previous tranche: five-year endowment with 100% capital guarantee and guaranteed yields of 3.62% p.a. (RMB) or 2.25% p.a. (SGD).",
+  features:[
+    "3.62% p.a. (RMB) or 2.25% p.a. (SGD) guaranteed yield",
+    "100% capital guarantee"
+  ],
+  notes:[
+    "Closed tranche — for in-force clients only",
+    "Useful as the comparison point when a client asks why this year's rate is lower"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/about-us/news-center/china-life-insurance-singapore-launches-china-life-savereward-101-series-ii", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"cl-saveforward", name:"China Life SaveForward Endowment Plan", insurer:"China Life",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation","Child education"],
+  segments:["Mass","Mass affluent","Family"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Premium terms of 5 to 15 years", coverageTerm:"Policy terms of 8 to 20 years",
+  entryAge:"0 – 65", sumAssured:"Maturity from S$20,000", uw:"No health underwriting",
+  est:["entryAge","sumAssured","uw","funding"],
+  status:"Open",
+  summary:"Endowment with a wide spread of policy terms — 8 to 20 years — and premium payment options from 5 to 15 years, so the maturity date can be matched to a dated goal.",
+  features:[
+    "Policy terms from 8 to 20 years",
+    "Premium terms from 5 to 15 years"
+  ],
+  notes:[
+    "Match the maturity to the goal date, not to the shortest premium term",
+    "Confirm the guaranteed portion of the maturity value"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/products/China-Life-SaveForward-Endowment-Plan", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"cl-golden-dragon", name:"China Life Golden Dragon Whole Life Plan (USD)", insurer:"China Life",
+  category:"Life protection", type:"Whole life (participating)",
+  needs:["Legacy planning","Wealth accumulation","Estate liquidity"],
+  segments:["HNW"],
+  funding:["Cash"], currency:["USD"],
+  premiumBasis:"5-year regular premium", coverageTerm:"Whole of life",
+  entryAge:"0 – 65", sumAssured:"From S$50,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"USD-denominated five-pay participating whole life with a return-of-premiums feature, launched as the insurer's first high-net-worth plan of that shape.",
+  features:[
+    "USD denominated",
+    "Five years of regular premiums",
+    "Return of premiums feature"
+  ],
+  notes:[
+    "USD exposure against SGD liabilities — flag the currency risk",
+    "Confirm the conditions attached to the return-of-premiums feature"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/about-us/news-center/china-life-insurance-singapore-launches-1st-high-net-worth-plan-provides", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"cl-lifetime-income", name:"China Life Lifetime Income Plan", insurer:"China Life",
+  category:"Savings & retirement", type:"Lifetime income (participating)",
+  needs:["Retirement income","Legacy planning"],
+  segments:["Mass affluent","Seniors"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Flexible premium terms", coverageTerm:"Whole of life",
+  entryAge:"18 – 70", sumAssured:"Capital guaranteed", uw:"Simplified underwriting",
+  est:["entryAge","uw","funding"],
+  status:"Open",
+  summary:"Participating whole life paying a yearly income for life, with capital guarantee and protection against death and terminal illness.",
+  features:[
+    "Yearly income for life",
+    "Capital guarantee",
+    "Death and terminal illness cover"
+  ],
+  notes:[
+    "Confirm when the capital guarantee bites — usually not from day one",
+    "Split guaranteed from non-guaranteed income"
+  ],
+  riders:[],
+  source:"https://www.chinalife.com.sg/products/china-life-lifetime-income-plan", sourceName:"chinalife.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- Etiqa ---- */
+{
+  id:"etq-enrich-income", name:"Etiqa Enrich Income", insurer:"Etiqa",
+  category:"Savings & retirement", type:"Lifetime income (participating)",
+  needs:["Retirement income","Income replacement"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Whole of life",
+  entryAge:"18 – 70", sumAssured:"Income from S$500 a month", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"Whole life plan built to pay a guaranteed monthly income while keeping cover in place through the policy term.",
+  features:[
+    "Guaranteed monthly income",
+    "Life cover alongside the income stream"
+  ],
+  notes:[
+    "Confirm when the monthly income starts and for how long it runs",
+    "Check what happens to the income on death"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/personal/savings-retirement/enrich-income/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"etq-enrich-retirement", name:"Etiqa Enrich Retirement", insurer:"Etiqa",
+  category:"Savings & retirement", type:"Retirement income",
+  needs:["Retirement income"],
+  segments:["Mass","Mass affluent","Seniors"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 5 or 10 years", coverageTerm:"Payout to age 100",
+  entryAge:"25 – 70", sumAssured:"Income from S$500 a month", uw:"No health underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Retirement plan paying both a lump sum at maturity and a monthly retirement income.",
+  features:[
+    "Lump sum maturity payout",
+    "Monthly retirement income"
+  ],
+  notes:[
+    "Confirm SRS eligibility with the insurer rather than assuming it",
+    "Check the payout ages available"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/personal/savings-retirement/enrich-retirement/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"etq-enrich-saver", name:"Etiqa Enrich Saver", insurer:"Etiqa",
+  category:"Savings & retirement", type:"Endowment",
+  needs:["Wealth accumulation"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash","SRS"], currency:["SGD"],
+  premiumBasis:"Limited pay — 3 to 10 years", coverageTerm:"10 years",
+  entryAge:"0 – 65", sumAssured:"Capital guaranteed", uw:"No health underwriting",
+  est:["entryAge","premiumBasis","uw","funding"],
+  status:"Open",
+  summary:"Capital-guaranteed endowment paying a lump sum at the end of ten years.",
+  features:[
+    "Capital guaranteed",
+    "Ten-year term with a lump sum at maturity"
+  ],
+  notes:[
+    "The guarantee applies at maturity, not on surrender",
+    "Confirm the current illustrated yield"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/personal/savings-retirement/enrich-saver/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"etq-eprotect-mortgage", name:"Etiqa ePROTECT mortgage", insurer:"Etiqa",
+  category:"Life protection", type:"Decreasing / mortgage term",
+  needs:["Mortgage protection"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Premiums for 90% of the policy term", coverageTerm:"6 to 40 years, or to age 75",
+  entryAge:"21 – 60", sumAssured:"Tracks the outstanding home loan", uw:"Simplified underwriting",
+  est:["entryAge","uw"],
+  status:"Open",
+  summary:"Mortgage cover that pays off the remaining home loan, with premiums payable for only 90% of the policy term.",
+  features:[
+    "Premiums for 90% of the term, cover for 100% of it",
+    "Policy terms from 6 to 40 years, or until the 75th birthday",
+    "Benefit tracks the outstanding loan"
+  ],
+  notes:[
+    "Confirm how the reduction schedule is set and what a refinance does to it",
+    "Check whether the lender requires assignment"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/personal/home-insurance/eprotect-mortgage/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"etq-eprotect-travel", name:"Etiqa ePROTECT travel", insurer:"Etiqa",
+  category:"General insurance", type:"Travel",
+  needs:["Travel disruption","Hospital bills"],
+  segments:["Mass","Family","Seniors"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Per trip or annual", coverageTerm:"Per trip, or 12 months",
+  entryAge:"No age limit", sumAssured:"Medical to S$1m", uw:"No underwriting",
+  est:["entryAge","sumAssured","coverageTerm"],
+  status:"Open",
+  summary:"Etiqa's travel policy, also sold online through the Tiq brand with automated flight-delay payouts.",
+  features:[
+    "Per-trip and annual options",
+    "Tiq version pays flight delays automatically"
+  ],
+  notes:[
+    "Pre-existing conditions are the usual gap — check the wording",
+    "Confirm the maximum trip length on an annual policy"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/personal/travel-insurance/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"etq-eprotect-maid", name:"Etiqa ePROTECT maid", insurer:"Etiqa",
+  category:"General insurance", type:"Domestic helper",
+  needs:["Domestic helper","Property damage"],
+  segments:["Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"14 or 26 months",
+  entryAge:"23 – 50 (helper)", sumAssured:"To the MOM required limits", uw:"No underwriting",
+  est:["entryAge","sumAssured","coverageTerm"],
+  status:"Open",
+  summary:"Domestic helper policy meeting the MOM insurance requirement for employers.",
+  features:[
+    "Covers the MOM-required elements for employing a helper"
+  ],
+  notes:[
+    "Check the policy against the current MOM requirements at renewal",
+    "Wording changed on 1 July 2023 — confirm which version an in-force client holds"
+  ],
+  riders:[],
+  source:"https://www.etiqa.com.sg/policy-wordings/", sourceName:"etiqa.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- FWD ---- */
+{
+  id:"fwd-term-life-plus", name:"FWD Term Life Plus", insurer:"FWD",
+  category:"Life protection", type:"Term life",
+  needs:["Income replacement","Mortgage protection"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  entryAge:"18 – 65", sumAssured:"Up to S$1.5m", uw:"Full underwriting",
+  est:["entryAge","coverageTerm","uw"],
+  status:"Open",
+  summary:"Direct-to-consumer term life paying a lump sum of up to S$1.5m on death or terminal illness.",
+  features:[
+    "Up to S$1.5m lump sum",
+    "Death and terminal illness cover",
+    "Bought online"
+  ],
+  notes:[
+    "The S$1.5m cap means a higher cover need has to be stacked or placed elsewhere",
+    "Online purchase means the client may already hold one — check before recommending"
+  ],
+  riders:[],
+  source:"https://www.fwd.com.sg/life-insurance/term-life-plus/", sourceName:"fwd.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"fwd-ci-plus", name:"FWD Critical Illness Plus", insurer:"FWD",
+  category:"Life protection", type:"Critical illness (standalone)",
+  needs:["Critical illness cover"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 75 or 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Term-based CI covering 37 late-stage critical illnesses plus the early and intermediate stages of cancer, heart attack and stroke.",
+  features:[
+    "37 late-stage critical illnesses",
+    "Early and intermediate stages of cancer, heart attack and stroke"
+  ],
+  notes:[
+    "Early-stage cover is limited to the big three — not a full multi-stage CI plan",
+    "Confirm the term and renewal basis"
+  ],
+  riders:[],
+  source:"https://www.fwd.com.sg/critical-illness-insurance/critical-illness-plus/", sourceName:"fwd.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"fwd-big-3", name:"FWD Big 3 Critical Illness", insurer:"FWD",
+  category:"Life protection", type:"Critical illness (standalone)",
+  needs:["Critical illness cover","Cancer cover"],
+  segments:["Mass"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 75 or 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Narrow, cheap CI: pays 100% of the sum insured or total premiums paid, whichever is higher, for all stages of cancer and late-stage heart attack or stroke — the three conditions behind about 90% of CI claims.",
+  features:[
+    "All stages of cancer, late-stage heart attack and late-stage stroke",
+    "Pays the higher of sum insured or total premiums paid",
+    "Covers roughly 90% of CI claims by condition"
+  ],
+  notes:[
+    "Only three conditions — a client with a wider family history needs more",
+    "Heart attack and stroke are late-stage only"
+  ],
+  riders:[],
+  source:"https://www.fwd.com.sg/critical-illness-insurance/big-3-critical-illness/", sourceName:"fwd.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"fwd-cancer-20", name:"FWD Cancer 2.0", insurer:"FWD",
+  category:"Life protection", type:"Cancer cover",
+  needs:["Cancer cover","Critical illness cover"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 75",
+  entryAge:"18 – 60", sumAssured:"S$50,000 – S$500,000", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Cancer-only cover including early tumour diagnosis, with cover continuing for new or recurring late-stage cancer after a first claim.",
+  features:[
+    "Covers early tumour diagnosis",
+    "Cover continues after a first cancer claim for new or recurring late-stage cancer"
+  ],
+  notes:[
+    "Cancer only — heart attack, stroke and organ failure are not covered",
+    "Confirm the waiting period between the first and any subsequent claim"
+  ],
+  riders:[],
+  source:"https://www.fwd.com.sg/critical-illness-insurance/cancer-insurance/", sourceName:"fwd.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"fwd-flex", name:"FWD Flex", insurer:"FWD",
+  category:"Life protection", type:"Critical illness (standalone)",
+  needs:["Critical illness cover","Cancer cover","Income replacement"],
+  segments:["Mass"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"To age 75 or 85",
+  entryAge:"17 – 60", sumAssured:"S$50,000 – S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Cover for all stages of cancer, late-stage heart attack, late-stage stroke and death, paying 100% as a lump sum the client can use for anything.",
+  features:[
+    "All stages of cancer plus late-stage heart attack and stroke",
+    "Death cover included",
+    "100% lump sum with no restriction on use"
+  ],
+  notes:[
+    "Compare against Big 3 — the difference is the death benefit",
+    "Confirm what happens to cover after a claim"
+  ],
+  riders:[],
+  source:"https://www.fwd.com.sg/critical-illness-insurance/fwd-flex/", sourceName:"fwd.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- Raffles Health Insurance ---- */
+{
+  id:"rhi-shield", name:"Raffles Shield", insurer:"Raffles Health Insurance",
+  category:"Health & medical", type:"Integrated Shield Plan",
+  needs:["Hospital bills"],
+  segments:["Mass","Mass affluent","Family"],
+  funding:["CPF MediSave","Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Lifetime, annually renewable",
+  entryAge:"0 – 75", sumAssured:"Annual claim limit from S$500,000", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Integrated Shield Plan in four tiers — Standard, B, A and Private — with a rider line-up that changed on 1 April 2026.",
+  features:[
+    "Four plan tiers: Standard, B, A and Private",
+    "Base premiums payable from MediSave up to the withdrawal limits",
+    "Riders: Choice, Premier and Cancer Guard"
+  ],
+  notes:[
+    "The rider set changed on 1 Apr 2026 — Key Rider is gone, Choice Rider is new",
+    "Match the tier to the hospital the client actually intends to use"
+  ],
+  riders:["Raffles Choice Rider","Raffles Premier Rider","Raffles Cancer Guard Rider"],
+  source:"https://www.raffleshealthinsurance.com/products/raffles-shield/", sourceName:"raffleshealthinsurance.com", sourced:"2026-08-20"
+},
+{
+  id:"rhi-choice-rider", name:"Raffles Choice Rider", insurer:"Raffles Health Insurance",
+  category:"Health & medical", type:"Integrated Shield rider",
+  needs:["Hospital bills"],
+  segments:["Mass","Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Annually renewable",
+  entryAge:"Follows the base Shield plan", sumAssured:"Co-payment capped at S$6,000 per policy year", uw:"Full underwriting",
+  est:["entryAge","coverageTerm","uw"],
+  status:"Open", statusNote:"Launched 1 April 2026 in response to new MOH requirements.",
+  summary:"Rider replacing the co-insurance under a Raffles Shield policy with a 5% co-payment on the amount after deductible, capped at S$6,000 a policy year.",
+  features:[
+    "5% co-payment after deductible in place of co-insurance",
+    "Cap of S$6,000 per policy year",
+    "Cap applies to RHI panel and extended panel specialists, and government restructured hospitals"
+  ],
+  notes:[
+    "The cap depends on staying inside the panel or a restructured hospital — say so up front",
+    "New from 1 Apr 2026; existing rider holders need a switch conversation"
+  ],
+  riders:[],
+  source:"https://www.raffleshealthinsurance.com/raffles-shield-apr-2026-updates/", sourceName:"raffleshealthinsurance.com", sourced:"2026-08-20"
+},
+{
+  id:"rhi-premier-rider", name:"Raffles Premier Rider", insurer:"Raffles Health Insurance",
+  category:"Health & medical", type:"Integrated Shield rider",
+  needs:["Hospital bills"],
+  segments:["Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Annually renewable",
+  entryAge:"Follows the base Shield plan", sumAssured:"Reduces the client's share of the bill", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open", statusNote:"Premium rates unchanged at the 1 April 2026 revision.",
+  summary:"The upper rider tier on Raffles Shield. Rates were held at the April 2026 revision.",
+  features:[
+    "Rider tier above Choice",
+    "Premium rates unchanged on 1 Apr 2026"
+  ],
+  notes:[
+    "Confirm the co-payment structure against the Choice Rider before recommending either",
+    "Rates held this cycle — that is not a guarantee for the next"
+  ],
+  riders:[],
+  source:"https://www.raffleshealthinsurance.com/raffles-shield-apr-2026-updates/", sourceName:"raffleshealthinsurance.com", sourced:"2026-08-20"
+},
+{
+  id:"rhi-cancer-guard", name:"Raffles Cancer Guard Rider", insurer:"Raffles Health Insurance",
+  category:"Health & medical", type:"Integrated Shield rider",
+  needs:["Cancer drug costs","Hospital bills"],
+  segments:["Mass affluent","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Annually renewable",
+  entryAge:"Follows the base Shield plan", sumAssured:"Up to S$250,000 per policy year for non-CDL cancer drug treatment", uw:"Full underwriting",
+  est:["entryAge","coverageTerm","uw"],
+  status:"Open", statusNote:"Premium rates unchanged at the 1 April 2026 revision.",
+  summary:"Adds cancer drug cover on top of the Integrated Shield benefits, paying up to S$250,000 a policy year for cancer drug treatments outside the Cancer Drug List.",
+  features:[
+    "Up to S$250,000 a policy year for non-CDL cancer drug treatment",
+    "Sits on top of the IP's own cancer benefits",
+    "Rates unchanged on 1 Apr 2026"
+  ],
+  notes:[
+    "This is the answer to the CDL gap — worth raising with any client on an IP",
+    "Confirm what counts as non-CDL treatment under the wording"
+  ],
+  riders:[],
+  source:"https://www.raffleshealthinsurance.com/raffles-shield-apr-2026-updates/", sourceName:"raffleshealthinsurance.com", sourced:"2026-08-20"
+},
+{
+  id:"rhi-key-rider", name:"Raffles Key Rider", insurer:"Raffles Health Insurance",
+  category:"Health & medical", type:"Integrated Shield rider",
+  needs:["Hospital bills"],
+  segments:["Mass","Mass affluent"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annually renewable", coverageTerm:"Annually renewable",
+  entryAge:"Follows the base Shield plan", sumAssured:"Reduces the client's share of the bill", uw:"Full underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Withdrawn", statusNote:"No longer available for purchase from 1 April 2026.",
+  summary:"Withdrawn rider. Kept in the bank because in-force holders will ask what changes for them and whether to move to the Choice Rider.",
+  features:[
+    "Previously available rider on Raffles Shield"
+  ],
+  notes:[
+    "Do not quote — withdrawn 1 Apr 2026",
+    "Prepare the switch comparison against Choice Rider before the client calls"
+  ],
+  riders:[],
+  source:"https://www.raffleshealthinsurance.com/raffles-shield-apr-2026-updates/", sourceName:"raffleshealthinsurance.com", sourced:"2026-08-20"
+},
+
+/* ---- Allianz ---- */
+{
+  id:"alz-care-individual", name:"Allianz Care International Healthcare Plan", insurer:"Allianz",
+  category:"Health & medical", type:"International health (IPMI)",
+  needs:["Hospital bills","Expat / international cover"],
+  segments:["Expat","HNW","Family"],
+  funding:["Cash"], currency:["SGD","USD"],
+  premiumBasis:"Annual", coverageTerm:"12 months, renewable",
+  entryAge:"0 – 75", sumAssured:"Annual limit from S$1m", uw:"Full underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"International private medical cover for individuals: a core in-patient and day-care plan that can be extended with out-patient, dental, maternity and repatriation modules.",
+  features:[
+    "Core plans cover in-patient and day-care treatment",
+    "Medical evacuation, local ambulance and nursing at home",
+    "Optional out-patient, dental, maternity and repatriation modules"
+  ],
+  notes:[
+    "IPMI is not an Integrated Shield Plan — it does not use MediSave",
+    "Right question first: does the client actually need cover outside Singapore?"
+  ],
+  riders:["Out-patient","Dental","Maternity","Repatriation"],
+  source:"https://www.allianz.sg/individual-solutions/international-health.html", sourceName:"allianz.sg", sourced:"2026-08-20"
+},
+{
+  id:"alz-summit-group", name:"Allianz Summit (SME international health)", insurer:"Allianz",
+  category:"Business & group", type:"Group employee benefits",
+  needs:["Hospital bills","Business continuity","Expat / international cover"],
+  segments:["SME","Expat"],
+  funding:["Company-paid"], currency:["SGD","USD"],
+  premiumBasis:"Annual", coverageTerm:"12 months, renewable",
+  entryAge:"16 – 70 (employees)", sumAssured:"Schedule by salary multiple", uw:"Guaranteed issue from 5 lives",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"International healthcare plan for employers, the group counterpart to the Allianz Care individual range.",
+  features:[
+    "Group international medical cover",
+    "Modular benefit structure"
+  ],
+  notes:[
+    "Ask for the census early — pricing hinges on it",
+    "Check how leavers are handled and whether cover is portable"
+  ],
+  riders:[],
+  source:"https://www.allianz.sg/sme-solutions/international-health.html", sourceName:"allianz.sg", sourced:"2026-08-20"
+},
+
+/* ---- Transamerica Life (Bermuda) ---- */
+{
+  id:"tlb-genesis-iii", name:"Genesis III Indexed Universal Life", insurer:"Transamerica Life (Bermuda)",
+  category:"Investment-linked", type:"Indexed universal life",
+  needs:["Legacy planning","Estate liquidity","Wealth accumulation"],
+  segments:["HNW"],
+  funding:["Cash"], currency:["USD"],
+  premiumBasis:"Single premium or 5-year", coverageTerm:"Whole of life",
+  entryAge:"35 – 80", sumAssured:"From US$1m", uw:"Full medical and financial underwriting",
+  est:["entryAge","sumAssured","premiumBasis"],
+  status:"Open",
+  summary:"Indexed universal life for high-net-worth clients, marketed in Singapore for lifetime protection alongside wealth maximisation. The third generation of the Genesis line.",
+  features:[
+    "Indexed crediting on the policy account",
+    "Positioned for wealth maximisation and lifetime protection",
+    "Sold into the Singapore HNW market"
+  ],
+  notes:[
+    "Every case is a bespoke illustration — nothing here substitutes for one",
+    "If the case is premium-financed, run the interest-rate and lapse stress test before presenting"
+  ],
+  riders:[],
+  source:"https://www.transamericalifebermuda.com/en/our-insurance-solutions/genesis-ii-indexed-universal-life-singapore-detail", sourceName:"transamericalifebermuda.com", sourced:"2026-08-20"
+},
+{
+  id:"tlb-prospera", name:"Prospera FlexiGrowth", insurer:"Transamerica Life (Bermuda)",
+  category:"Investment-linked", type:"Indexed savings",
+  needs:["Wealth accumulation","Legacy planning"],
+  segments:["HNW"],
+  funding:["Cash","SRS"], currency:["USD"],
+  premiumBasis:"Single premium", coverageTerm:"Whole of life",
+  entryAge:"18 – 75", sumAssured:"Account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","premiumBasis","coverageTerm","uw","funding"],
+  status:"Open",
+  summary:"Indexed savings plan in the Transamerica Life Bermuda range for high-net-worth clients.",
+  features:[
+    "Indexed crediting structure",
+    "HNW savings positioning"
+  ],
+  notes:[
+    "Confirm current availability and the crediting parameters with the insurer",
+    "Caps and participation rates are usually reviewable — check who can change them"
+  ],
+  riders:[],
+  source:"https://www.transamericalifebermuda.com/en", sourceName:"transamericalifebermuda.com", sourced:"2026-08-20"
+},
+
+/* ---- Friends Provident International ---- */
+{
+  id:"fpi-premier-advance", name:"FPI Premier Advance", insurer:"Friends Provident International",
+  category:"Investment-linked", type:"Offshore savings",
+  needs:["Wealth accumulation","Expat / international cover"],
+  segments:["Expat","Mass affluent"],
+  funding:["Cash"], currency:["USD","SGD"],
+  premiumBasis:"Regular premium", coverageTerm:"5 – 25 years",
+  entryAge:"18 – 75", sumAssured:"Account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Confirm", statusNote:"Discontinued for new investors in the UAE since 2020; availability elsewhere is subject to local regulation. Confirm before quoting.",
+  summary:"Unit-linked regular-premium offshore savings plan for medium- to long-term accumulation, typically used by internationally mobile clients.",
+  features:[
+    "Unit-linked regular premium structure",
+    "Medium- to long-term accumulation"
+  ],
+  notes:[
+    "Confirm whether it is currently open to Singapore clients before any illustration",
+    "Early-exit charges on offshore regular-premium plans are steep — model them"
+  ],
+  riders:[],
+  source:"https://advisers.fpinternational.com/documents/xim16d.pdf", sourceName:"fpinternational.com", sourced:"2026-08-20"
+},
+{
+  id:"fpi-reserve", name:"FPI International Reserve Bond", insurer:"Friends Provident International",
+  category:"Investment-linked", type:"Offshore savings",
+  needs:["Wealth accumulation","Legacy planning"],
+  segments:["Expat","HNW"],
+  funding:["Cash"], currency:["USD","SGD"],
+  premiumBasis:"Single premium", coverageTerm:"5 – 25 years",
+  entryAge:"18 – 75", sumAssured:"Account value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Confirm", statusNote:"Confirm current Singapore availability with the provider.",
+  summary:"Single-premium offshore investment bond. A Reserve Plus variant is structured for clients relocating to Australia.",
+  features:[
+    "Single-premium offshore bond",
+    "Reserve Plus variant aimed at clients moving to Australia"
+  ],
+  notes:[
+    "Tax treatment depends entirely on where the client will be resident — refer them to a tax adviser",
+    "Confirm the current charging structure with the provider"
+  ],
+  riders:[],
+  source:"https://mikecoady.com/friends-provident-international-reserve-bond-review/", sourceName:"third-party review", sourced:"2026-08-20"
+},
+
+/* ---- MSIG ---- */
+{
+  id:"msig-traveleasy", name:"MSIG TravelEasy & TravelEasy Pre-Ex", insurer:"MSIG",
+  category:"General insurance", type:"Travel",
+  needs:["Travel disruption","Hospital bills"],
+  segments:["Mass","Family","Seniors"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Per trip or annual", coverageTerm:"Per trip, or 12 months",
+  entryAge:"No age limit", sumAssured:"Medical to S$1m", uw:"No underwriting",
+  est:["entryAge","sumAssured","coverageTerm"],
+  status:"Open",
+  summary:"Travel cover for medical expenses, trip cancellation and belongings, with a Pre-Ex variant that covers pre-existing conditions.",
+  features:[
+    "Medical expenses, trip cancellation and personal belongings",
+    "Pre-Ex variant covers pre-existing medical conditions"
+  ],
+  notes:[
+    "Pre-Ex is the reason to quote MSIG for an older client — it is a separate product, not an add-on",
+    "Confirm the per-trip limit on the annual plan"
+  ],
+  riders:[],
+  source:"https://www.msig.com.sg/personal/traveleasy", sourceName:"msig.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"msig-homeplus", name:"MSIG Enhanced HomePlus", insurer:"MSIG",
+  category:"General insurance", type:"Home",
+  needs:["Property damage"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"12 months",
+  entryAge:"Not applicable", sumAssured:"Up to S$270,000 of contents and renovation cover", uw:"No underwriting",
+  est:["coverageTerm"],
+  status:"Open",
+  summary:"Home contents and renovation cover of up to S$270,000, for HDB and private homes.",
+  features:[
+    "Up to S$270,000 of contents and renovation cover",
+    "Sits alongside the mandatory HDB fire policy, which covers the structure only"
+  ],
+  notes:[
+    "Clients routinely assume the HDB fire policy covers renovation — it does not",
+    "Check jewellery and valuables sub-limits"
+  ],
+  riders:[],
+  source:"https://www.msig.com.sg/personal-insurance/detail/home/enhanced-homeplus", sourceName:"msig.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"msig-motormax", name:"MSIG MotorMax & MotorMax Plus", insurer:"MSIG",
+  category:"General insurance", type:"Motor",
+  needs:["Property damage"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"12 months",
+  entryAge:"21 – 70 (driver)", sumAssured:"Market value", uw:"Simplified underwriting",
+  est:["entryAge","sumAssured","uw"],
+  status:"Open",
+  summary:"Private car cover in two tiers, with accidental damage, third-party liability and personal accident protection.",
+  features:[
+    "Two tiers: MotorMax and MotorMax Plus",
+    "Accidental damage, third-party liability and personal accident cover"
+  ],
+  notes:[
+    "Check the workshop arrangement — it decides the claims experience",
+    "Named-driver and excess choices move the premium more than the tier does"
+  ],
+  riders:[],
+  source:"https://www.msig.com.sg/personal/motormax", sourceName:"msig.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"msig-maidplus", name:"MSIG MaidPlus", insurer:"MSIG",
+  category:"General insurance", type:"Domestic helper",
+  needs:["Domestic helper"],
+  segments:["Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"14 or 26 months",
+  entryAge:"23 – 50 (helper)", sumAssured:"To the MOM required limits", uw:"No underwriting",
+  est:["entryAge","sumAssured","coverageTerm"],
+  status:"Open",
+  summary:"Domestic helper policy covering the employer's obligations for a helper in Singapore.",
+  features:[
+    "Covers the employer's MOM obligations"
+  ],
+  notes:[
+    "Check the security bond and medical limits against current MOM requirements",
+    "Confirm what happens on a change of helper mid-term"
+  ],
+  riders:[],
+  source:"https://www.msig.com.sg/insurance/personal-insurance", sourceName:"msig.com.sg", sourced:"2026-08-20"
+},
+
+/* ---- Sompo ---- */
+{
+  id:"sompo-pa-ease", name:"Sompo PA Ease", insurer:"Sompo",
+  category:"General insurance", type:"Personal accident",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family","Self-employed"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"Annual, renewable",
+  entryAge:"0 – 70", sumAssured:"S$50,000 – S$1m", uw:"No health underwriting",
+  est:["entryAge","sumAssured","coverageTerm","uw"],
+  status:"Open",
+  summary:"Personal accident plan covering accidental injury worldwide, plus COVID-19, dengue and 22 other infectious diseases while in Singapore.",
+  features:[
+    "Worldwide accidental injury cover",
+    "COVID-19, dengue and 22 other infectious diseases while in Singapore"
+  ],
+  notes:[
+    "The infectious-disease benefit is Singapore-only — check before selling it to a frequent traveller",
+    "Accident cover excludes illness generally"
+  ],
+  riders:[],
+  source:"https://www.sompo.com.sg/", sourceName:"sompo.com.sg", sourced:"2026-08-20"
+},
+{
+  id:"sompo-pastar", name:"Sompo PAStar", insurer:"Sompo",
+  category:"General insurance", type:"Personal accident",
+  needs:["Hospital bills","Income replacement"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Annual", coverageTerm:"Annual, renewable",
+  entryAge:"0 – 70", sumAssured:"Pre-packaged limits", uw:"No health underwriting",
+  est:["entryAge","coverageTerm","uw"],
+  status:"Open",
+  summary:"Pre-packaged personal accident plans at set benefit limits.",
+  features:[
+    "Pre-packaged tiers with fixed limits"
+  ],
+  notes:[
+    "Compare against PA Ease on the infectious-disease benefit",
+    "Confirm occupation eligibility"
+  ],
+  riders:[],
+  source:"https://www.sompo-asia.com/home/personal-insurance.html", sourceName:"sompo-asia.com", sourced:"2026-08-20"
+},
+
+/* ---- HL Assurance ---- */
+{
+  id:"hlas-travel-protect360", name:"HL Assurance Travel Protect360", insurer:"HL Assurance",
+  category:"General insurance", type:"Travel",
+  needs:["Travel disruption","Hospital bills"],
+  segments:["Mass","Family"],
+  funding:["Cash"], currency:["SGD"],
+  premiumBasis:"Per trip or annual", coverageTerm:"Per trip, or 12 months",
+  entryAge:"No age limit", sumAssured:"Medical to S$1m", uw:"No underwriting",
+  est:["entryAge","sumAssured","coverageTerm"],
+  status:"Open",
+  summary:"HL Assurance's travel policy for the Singapore market.",
+  features:[
+    "Per-trip and annual cover"
+  ],
+  notes:[
+    "Quote against MSIG TravelEasy and Etiqa/Tiq before recommending",
+    "Check the adventure-activity and pre-existing exclusions"
+  ],
+  riders:[],
+  source:"https://www.hlas.com.sg/", sourceName:"hlas.com.sg", sourced:"2026-08-20"
 }
+
 ];
 </script>
 
@@ -867,12 +2093,21 @@ const FACETS = [
   { key:"needs",    label:"Client need",         get:p => p.needs },
   { key:"insurer",  label:"Insurer",             get:p => [p.insurer] },
   { key:"segments", label:"Client segment",      get:p => p.segments },
-  { key:"funding",  label:"Funding source",      get:p => p.funding },
+  { key:"funding",  label:"Funding",             get:p => p.funding },
   { key:"currency", label:"Currency",            get:p => p.currency },
   { key:"uw",       label:"Underwriting",        get:p => [p.uw] },
-  { key:"status",   label:"Distribution status", get:p => [p.status] }
+  { key:"status",   label:"Distribution status", get:p => [p.status] },
+  { key:"conf",     label:"Data confidence",     get:p => [confOf(p)] }
 ];
-const STATUS_LABEL = { Open:"Open for new business", Repricing:"Repricing pending", Closed:"Closed to new business" };
+const EST_FIELDS = 6;   // entryAge, sumAssured, premiumBasis, coverageTerm, uw, funding
+const confOf = p => { const n = (p.est||[]).length;
+  return n <= 2 ? "Most key terms sourced" : n <= 4 ? "Some key terms sourced" : "Key terms all estimated"; };
+const STATUS_LABEL = {
+  Open:"Open for new business",
+  Superseded:"Superseded",
+  Withdrawn:"Withdrawn",
+  Confirm:"Confirm availability"
+};
 const label = (key, v) => key === "status" ? (STATUS_LABEL[v] || v) : v;
 
 const state = { q:"", sel:{}, sort:"relevance", active:null, pinned:[], expanded:new Set() };
@@ -881,10 +2116,11 @@ FACETS.forEach(f => state.sel[f.key] = new Set());
 /* ---------- search index ---------- */
 const norm = s => s.toLowerCase().replace(/[^a-z0-9%$ ]+/g, " ");
 PRODUCTS.forEach(p => {
-  p._strong = norm([p.name, p.insurer, p.type, p.code, ...p.needs].join(" "));
-  p._all = norm([p.name, p.insurer, p.type, p.code, p.category, p.summary,
+  p._strong = norm([p.name, p.insurer, p.type, ...p.needs].join(" "));
+  p._all = norm([p.name, p.insurer, p.type, p.category, p.summary,
     ...p.needs, ...p.segments, ...p.funding, ...p.currency, ...p.riders,
-    ...p.features, ...p.watch, ...(p.premiumTerm||[]), p.uw, p.coverageTerm].join(" "));
+    ...p.features, ...p.notes, p.premiumBasis, p.uw, p.coverageTerm,
+    p.entryAge, p.sumAssured, p.statusNote || ""].join(" "));
 });
 
 function score(p, tokens){
@@ -921,10 +2157,11 @@ function results(){
     out.push({ p, sc });
   }
   const by = {
-    relevance: (a,b) => b.sc - a.sc || a.p.name.localeCompare(b.p.name),
+    relevance: (a,b) => b.sc - a.sc ||
+                 a.p.insurer.localeCompare(b.p.insurer) || a.p.name.localeCompare(b.p.name),
     name:      (a,b) => a.p.name.localeCompare(b.p.name),
     insurer:   (a,b) => a.p.insurer.localeCompare(b.p.insurer) || a.p.name.localeCompare(b.p.name),
-    verified:  (a,b) => b.p.verified.localeCompare(a.p.verified)
+    category:  (a,b) => a.p.category.localeCompare(b.p.category) || a.p.name.localeCompare(b.p.name)
   };
   return out.sort(by[state.sort]).map(r => r.p);
 }
@@ -992,7 +2229,7 @@ function buildFacets(){
 
 /* ---------- result cards ---------- */
 function statusPill(p){
-  const cls = p.status === "Open" ? "open" : p.status === "Repricing" ? "repricing" : "closed";
+  const cls = { Open:"open", Superseded:"superseded", Withdrawn:"withdrawn", Confirm:"confirm" }[p.status] || "confirm";
   const s = el("span","status " + cls);
   s.textContent = STATUS_LABEL[p.status] || p.status;
   if (p.statusNote) s.title = p.statusNote;
@@ -1007,7 +2244,7 @@ function buildList(list){
     e.innerHTML = '<h3>Nothing matches that yet</h3>' +
       '<p>Loosen a filter, or start from one of these:</p>';
     const s = el("div","sugg");
-    ["cancer", "SRS", "guaranteed issue", "mortgage", "MediSave", "own occupation"].forEach(t => {
+    ["cancer", "CareShield", "mortgage", "MediSave", "multiplier", "USD"].forEach(t => {
       const b = el("button"); b.type = "button"; b.textContent = t;
       b.onclick = () => { resetAll(false); $("#q").value = t; state.q = t; render(); };
       s.appendChild(b);
@@ -1023,7 +2260,7 @@ function buildList(list){
     c.dataset.id = p.id;
 
     const main = el("div");
-    main.innerHTML = '<div class="insurer">' + hl(p.insurer) + ' <span class="code">· ' + esc(p.code) + '</span></div>' +
+    main.innerHTML = '<div class="insurer">' + hl(p.insurer) + ' <span class="code">· ' + esc(p.category) + '</span></div>' +
       '<h3>' + hl(p.name) + '</h3><p>' + hl(p.summary) + '</p>';
 
     const right = el("div","right");
@@ -1040,7 +2277,8 @@ function buildList(list){
     p.needs.filter(n => !p.type.toLowerCase().includes(n.toLowerCase()))
      .slice(0,3).forEach(n => { const t = el("span","tag"); t.textContent = n; tags.appendChild(t); });
     const t1 = el("span","tag"); t1.textContent = p.funding.join(" · "); tags.appendChild(t1);
-    if (p.currency.includes("USD")) { const t = el("span","tag"); t.textContent = "USD available"; tags.appendChild(t); }
+    p.currency.filter(c => c !== "SGD").forEach(c => { const t = el("span","tag"); t.textContent = c; tags.appendChild(t); });
+    if (p.est && p.est.length){ const t = el("span","tag est"); t.textContent = p.est.length + " est."; t.title = "Estimated fields: " + p.est.join(", "); tags.appendChild(t); }
 
     c.append(main, right, tags);
     c.addEventListener("click", () => open(p.id));
@@ -1051,25 +2289,30 @@ function buildList(list){
 /* ---------- default panel: what the bank holds ---------- */
 function glance(){
   const by = k => PRODUCTS.reduce((m,p) => (m[p[k]] = (m[p[k]]||0)+1, m), {});
-  const cat = by("category"), st = by("status");
-  const insurers = new Set(PRODUCTS.map(p => p.insurer)).size;
-  const recent = [...PRODUCTS].sort((a,b) => b.verified.localeCompare(a.verified)).slice(0,4);
-  const stale = PRODUCTS.filter(p => p.verified < "2026-06-01").length;
+  const cat = by("category"), st = by("status"), ins = by("insurer");
+  const estimated = PRODUCTS.filter(p => p.est && p.est.length).length;
   const bar = Object.entries(cat).sort((a,b) => b[1]-a[1]);
   const max = bar[0][1];
+  const top = Object.entries(ins).sort((a,b) => b[1]-a[1]).slice(0,6);
   return '<h2 style="font-size:20px;margin-top:2px">The bank at a glance</h2>' +
-    '<p class="rec-summary">' + PRODUCTS.length + ' products across ' + insurers + ' insurers. ' +
-      (st.Open||0) + ' open for new business, ' + (st.Repricing||0) + ' repricing, ' + (st.Closed||0) + ' closed but kept for in-force servicing.</p>' +
+    '<p class="rec-summary">' + PRODUCTS.length + ' products across ' + Object.keys(ins).length +
+      ' insurers on the panel. ' + (st.Open||0) + ' open for new business, ' + (st.Superseded||0) +
+      ' superseded, ' + (st.Withdrawn||0) + ' withdrawn, ' + (st.Confirm||0) + ' to confirm.</p>' +
     '<div class="sec"><h4>By category</h4><div class="bars">' +
       bar.map(([k,v]) => '<div class="bar"><span class="bl">' + esc(k) + '</span>' +
         '<span class="bt"><i style="width:' + Math.round(v/max*100) + '%"></i></span>' +
         '<span class="bn mono">' + v + '</span></div>').join("") + '</div></div>' +
-    '<div class="sec"><h4>Verified most recently</h4><div class="jumps">' +
-      recent.map(p => '<button type="button" class="jump" data-jump="' + p.id + '">' +
-        '<span class="jn">' + esc(p.name) + '</span><span class="jd mono">' + esc(fmtDate(p.verified)) + '</span></button>').join("") +
+    '<div class="sec"><h4>Largest panels</h4><div class="jumps">' +
+      top.map(([k,v]) => '<button type="button" class="jump" data-insurer="' + esc(k) + '">' +
+        '<span class="jn">' + esc(k) + '</span><span class="jd mono">' + v + '</span></button>').join("") +
       '</div></div>' +
-    (stale ? '<div class="sec"><h4>Needs a review</h4><p style="font-size:13px;color:var(--brass);margin:0">' +
-      stale + ' records were last verified before June — worth a check against the insurer circulars before you quote them.</p></div>' : '') +
+    (estimated ? '<div class="sec"><h4>Terms still to verify</h4>' +
+      '<p style="font-size:13px;color:var(--ink-2);margin:0 0 10px">Product names and the figures in ' +
+      '<em>What it does well</em> come from the insurers\' own pages. The detailed terms are estimates ' +
+      'until someone reads the product summary — ' + estimated + ' of ' + PRODUCTS.length +
+      ' records still carry at least one.</p>' +
+      '<button type="button" class="jump" data-conf="1"><span class="jn">Show the records with no sourced terms</span>' +
+      '<span class="jd mono">' + PRODUCTS.filter(x => (x.est||[]).length >= 5).length + '</span></button></div>' : '') +
     '<div class="sec"><h4>Shortcuts</h4><dl class="kv">' +
       [['Focus search','/'],['Move through results','↑ ↓'],['Close record','Esc'],['Share this view','copy the URL']]
         .map(([k,v]) => '<dt>' + k + '</dt><dd class="mono">' + v + '</dd>').join("") + '</dl></div>';
@@ -1082,17 +2325,34 @@ function buildRecord(){
   if (!p){
     r.classList.remove("open");
     r.innerHTML = glance();
-    r.querySelectorAll("[data-jump]").forEach(b => b.onclick = () => open(b.dataset.jump));
+    r.querySelectorAll("[data-insurer]").forEach(b => b.onclick = () => {
+      state.sel.insurer.add(b.dataset.insurer); render();
+    });
+    const c = r.querySelector("[data-conf]");
+    if (c) c.onclick = () => { state.sel.conf.add("Key terms all estimated"); render(); };
     return;
   }
+  const est = p.est || [];
+  const cell = (k, v) => est.includes(k)
+    ? esc(v) + '<span class="esttag" title="Estimated — confirm against the product summary">est.</span>'
+    : esc(v);
   const sec = (title, inner) => '<div class="sec"><h4>' + title + '</h4>' + inner + '</div>';
-  const li = arr => '<ul class="bullets">' + arr.map(x => '<li><span>' + esc(x) + '</span></li>').join("") + '</ul>';
+  const li = (arr, cls) => '<ul class="bullets' + (cls ? " " + cls : "") + '">' +
+    arr.map(x => '<li><span>' + esc(x) + '</span></li>').join("") + '</ul>';
+
+  const rows = [
+    ["Product type","type",p.type], ["Category","category",p.category],
+    ["Entry age","entryAge",p.entryAge], ["Sum assured / benefit","sumAssured",p.sumAssured],
+    ["Premium basis","premiumBasis",p.premiumBasis], ["Coverage term","coverageTerm",p.coverageTerm],
+    ["Underwriting","uw",p.uw], ["Funding","funding",p.funding.join(", ")],
+    ["Currency","currency",p.currency.join(", ")]
+  ];
 
   r.innerHTML =
     '<div class="rec-head"><div>' +
       '<div class="insurer">' + esc(p.insurer) + '</div>' +
       '<h2>' + esc(p.name) + '</h2>' +
-      '<div class="code">' + esc(p.code) + '</div>' +
+      '<div class="code">' + esc(p.category) + ' · ' + esc(p.type) + '</div>' +
     '</div><button id="closerec" type="button" aria-label="Close record">' +
       '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>' +
     '</button></div>' +
@@ -1100,23 +2360,32 @@ function buildRecord(){
     '<p class="rec-summary">' + esc(p.summary) + '</p>' +
     (p.statusNote ? '<p class="rec-summary" style="color:var(--brass)">' + esc(p.statusNote) + '</p>' : '') +
     sec("Key terms",
-      '<dl class="kv">' +
-      [["Product type", p.type],["Category", p.category],["Entry age", p.entryAge],
-       ["Sum assured / benefit", p.sumAssured],["Premium term", p.premiumTerm.join(", ")],
-       ["Coverage term", p.coverageTerm],["From", p.minPremium],["Funding", p.funding.join(", ")],
-       ["Currency", p.currency.join(", ")],["Underwriting", p.uw]]
-        .map(([k,v]) => '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>').join("") +
-      '</dl>') +
+      '<dl class="kv">' + rows.map(([k,key,v]) =>
+        '<dt>' + esc(k) + '</dt><dd' + (est.includes(key) ? ' class="isest"' : '') + '>' +
+        cell(key, v) + '</dd>').join("") + '</dl>') +
     sec("What it does well", li(p.features)) +
-    sec("Watch-outs", '<ul class="bullets watch">' + p.watch.map(x => '<li><span>' + esc(x) + '</span></li>').join("") + '</ul>') +
+    sec("Notes &amp; things to confirm", li(p.notes, "watch")) +
     (p.riders.length ? sec("Riders available", '<div class="taglist">' + p.riders.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>') : "") +
     sec("Fits these needs", '<div class="taglist">' + p.needs.map(x => '<span class="tag">' + esc(x) + '</span>').join("") + '</div>') +
-    sec("Documents", '<div class="docs">' + p.docs.map(x =>
-      '<a class="doc" href="#" onclick="return false"><svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 1h5l3 3v9H2z"/><path d="M7 1v3h3"/></svg>' + esc(x) + '</a>').join("") + '</div>') +
-    '<div class="verified"><span>Last verified ' + esc(fmtDate(p.verified)) + '</span><span>Reviewed by A. Tan</span></div>';
+    sec("Where this came from",
+      '<p class="srcline">Product name, availability and the figures above under <em>What it does well</em> ' +
+      'were taken from the insurer\'s own page. The key terms marked <span class="esttag">est.</span> are ' +
+      'estimates — read the product summary before you quote.</p>' +
+      '<div class="docs"><a class="doc" href="' + esc(p.source) + '" target="_blank" rel="noopener">' +
+      '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 3H3v10h10V9.5"/><path d="M9.5 2.5H13.5V6.5"/><path d="M8 8l5.5-5.5"/></svg>' +
+      esc(p.sourceName) + '</a></div>') +
+    '<div class="verified"><span>Sourced ' + esc(fmtDate(p.sourced)) + '</span><span>' +
+      (est.length ? est.length + ' of ' + EST_FIELDS + ' key terms estimated' : 'All key terms sourced') +
+    '</span></div>';
 
   const head = r.querySelector('.rec-head + div');
   head.appendChild(statusPill(p));
+  if (est.length){
+    const chip = el("span","status estchip");
+    chip.textContent = est.length + " of " + EST_FIELDS + " terms estimated";
+    chip.title = "Estimated: " + est.join(", ");
+    head.appendChild(chip);
+  }
   const pin = el("button", "pin" + (state.pinned.includes(p.id) ? " on" : ""));
   pin.type = "button";
   pin.textContent = state.pinned.includes(p.id) ? "Pinned to compare" : "Pin to compare";
@@ -1178,28 +2447,33 @@ function buildCompareBar(){
 }
 function showCompare(){
   const rows = [
-    ["Insurer", p => p.insurer],
-    ["Product type", p => p.type],
-    ["Status", p => (STATUS_LABEL[p.status] || p.status) + (p.statusNote ? " — " + p.statusNote : "")],
-    ["Entry age", p => p.entryAge],
-    ["Sum assured / benefit", p => p.sumAssured],
-    ["Premium term", p => p.premiumTerm.join(", ")],
-    ["Coverage term", p => p.coverageTerm],
-    ["From", p => p.minPremium],
-    ["Funding", p => p.funding.join(", ")],
-    ["Currency", p => p.currency.join(", ")],
-    ["Underwriting", p => p.uw],
-    ["Client needs", p => p.needs.join(", ")],
-    ["Riders", p => p.riders.length ? p.riders.join(", ") : "—"],
-    ["Watch-outs", p => p.watch.join(" · ")],
-    ["Last verified", p => fmtDate(p.verified)]
+    ["Insurer", p => p.insurer, null],
+    ["Product type", p => p.type, null],
+    ["Status", p => (STATUS_LABEL[p.status] || p.status) + (p.statusNote ? " — " + p.statusNote : ""), null],
+    ["Entry age", p => p.entryAge, "entryAge"],
+    ["Sum assured / benefit", p => p.sumAssured, "sumAssured"],
+    ["Premium basis", p => p.premiumBasis, "premiumBasis"],
+    ["Coverage term", p => p.coverageTerm, "coverageTerm"],
+    ["Underwriting", p => p.uw, "uw"],
+    ["Funding", p => p.funding.join(", "), "funding"],
+    ["Currency", p => p.currency.join(", "), null],
+    ["Client needs", p => p.needs.join(", "), null],
+    ["Riders", p => p.riders.length ? p.riders.join(", ") : "—", null],
+    ["What it does well", p => p.features.join(" · "), null],
+    ["Notes & to confirm", p => p.notes.join(" · "), null],
+    ["Source", p => p.sourceName, null]
   ];
   const ps = state.pinned.map(id => PRODUCTS.find(p => p.id === id));
+  const cell = (p, fn, key) => {
+    const v = esc(fn(p));
+    return (key && (p.est||[]).includes(key))
+      ? '<span class="isest">' + v + '<span class="esttag">est.</span></span>' : v;
+  };
   $("#cmptable").innerHTML =
     '<thead><tr><th></th>' + ps.map(p =>
       '<th><span class="insurer">' + esc(p.insurer) + '</span><span class="nm">' + esc(p.name) + '</span></th>').join("") + '</tr></thead>' +
-    '<tbody>' + rows.map(([k,fn]) =>
-      '<tr><th scope="row">' + esc(k) + '</th>' + ps.map(p => '<td>' + esc(fn(p)) + '</td>').join("") + '</tr>').join("") + '</tbody>';
+    '<tbody>' + rows.map(([k,fn,key]) =>
+      '<tr><th scope="row">' + esc(k) + '</th>' + ps.map(p => '<td>' + cell(p, fn, key) + '</td>').join("") + '</tr>').join("") + '</tbody>';
   $("#cmpdlg").showModal();
 }
 
