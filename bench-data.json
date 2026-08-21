@@ -1,0 +1,1712 @@
+{
+  "slf-shield": {
+    "tiers": [
+      {
+        "key": "plan-1",
+        "name": "Singlife Shield Plan 1",
+        "ward": 3,
+        "limit": 2000000,
+        "deductible": 3500,
+        "coins": 10,
+        "rider": {
+          "name": "Singlife Health Plus Private",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 440,
+          "35": 560,
+          "45": 880,
+          "55": 1660,
+          "65": 3240,
+          "75": 6300,
+          "85": 10500
+        },
+        "riderPrem": {
+          "25": 240,
+          "35": 320,
+          "45": 520,
+          "55": 980,
+          "65": 1900,
+          "75": 3700,
+          "85": 6200
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "deductible",
+          "coins",
+          "rider"
+        ],
+        "tierNote": "Co-insurance without a rider is capped at S$25,500 a policy year."
+      },
+      {
+        "key": "plan-2",
+        "name": "Singlife Shield Plan 2",
+        "ward": 2,
+        "limit": 1200000,
+        "deductible": 2000,
+        "coins": 10,
+        "rider": {
+          "name": "Singlife Health Plus Public",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 250,
+          "35": 320,
+          "45": 500,
+          "55": 950,
+          "65": 1850,
+          "75": 3600,
+          "85": 6000
+        },
+        "riderPrem": {
+          "25": 130,
+          "35": 170,
+          "45": 270,
+          "55": 510,
+          "65": 990,
+          "75": 1930,
+          "85": 3220
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "deductible",
+          "coins",
+          "rider"
+        ]
+      },
+      {
+        "key": "plan-3",
+        "name": "Singlife Shield Plan 3",
+        "ward": 1,
+        "limit": 500000,
+        "deductible": 2000,
+        "coins": 10,
+        "rider": {
+          "name": "Singlife Health Plus Public",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 140,
+          "35": 175,
+          "45": 275,
+          "55": 520,
+          "65": 1020,
+          "75": 1980,
+          "85": 3300
+        },
+        "riderPrem": {
+          "25": 80,
+          "35": 100,
+          "45": 160,
+          "55": 300,
+          "65": 580,
+          "75": 1130,
+          "85": 1880
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "deductible",
+          "coins",
+          "rider"
+        ]
+      },
+      {
+        "key": "standard",
+        "name": "Singlife Shield Standard",
+        "ward": 1,
+        "limit": 150000,
+        "deductible": 2000,
+        "coins": 10,
+        "rider": null,
+        "prem": {
+          "25": 105,
+          "35": 135,
+          "45": 210,
+          "55": 400,
+          "65": 780,
+          "75": 1500,
+          "85": 2500
+        },
+        "sourced": [
+          "ward",
+          "coins"
+        ],
+        "tierNote": "MOH Standard plan. Riders are not sold on Standard tiers — confirm."
+      }
+    ],
+    "family": "hospital"
+  },
+  "slf-shield-starter": {
+    "ward": 1,
+    "limit": 300000,
+    "deductible": 2000,
+    "coins": 10,
+    "rider": {
+      "name": "Singlife Health Plus Starter",
+      "coins": 5,
+      "cap": 6000
+    },
+    "prem": {
+      "25": 95,
+      "35": 125,
+      "45": 200,
+      "55": 380,
+      "65": 740,
+      "75": 1440,
+      "85": 2400
+    },
+    "riderPrem": {
+      "25": 60,
+      "35": 80,
+      "45": 130,
+      "55": 245,
+      "65": 475,
+      "75": 925,
+      "85": 1540
+    },
+    "sourced": [
+      "coins"
+    ],
+    "tierNote": "Entry-tier Shield aimed at young adults — confirm the ward tier and limit.",
+    "family": "hospital"
+  },
+  "rhi-shield": {
+    "tiers": [
+      {
+        "key": "private",
+        "name": "Raffles Shield Private",
+        "ward": 3,
+        "limit": 1500000,
+        "deductible": 3500,
+        "coins": 10,
+        "rider": {
+          "name": "Raffles Choice Rider",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 425,
+          "35": 545,
+          "45": 855,
+          "55": 1610,
+          "65": 3150,
+          "75": 6120,
+          "85": 10200
+        },
+        "riderPrem": {
+          "25": 232,
+          "35": 310,
+          "45": 505,
+          "55": 950,
+          "65": 1845,
+          "75": 3590,
+          "85": 6020
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "coins",
+          "rider"
+        ],
+        "tierNote": "S$1.5m applies on the panel / extended panel; S$600,000 off panel."
+      },
+      {
+        "key": "private-hd",
+        "name": "Raffles Shield Private (high deductible)",
+        "ward": 3,
+        "limit": 1500000,
+        "deductible": 10000,
+        "coins": 10,
+        "rider": {
+          "name": "Raffles Choice Rider",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 300,
+          "35": 380,
+          "45": 600,
+          "55": 1130,
+          "65": 2200,
+          "75": 4280,
+          "85": 7140
+        },
+        "riderPrem": {
+          "25": 232,
+          "35": 310,
+          "45": 505,
+          "55": 950,
+          "65": 1845,
+          "75": 3590,
+          "85": 6020
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "deductible",
+          "coins",
+          "rider"
+        ],
+        "tierNote": "High-deductible option: S$10,000 for every ward and age, ~30% off the premium."
+      },
+      {
+        "key": "a",
+        "name": "Raffles Shield A",
+        "ward": 2,
+        "limit": 600000,
+        "deductible": 2500,
+        "coins": 10,
+        "rider": {
+          "name": "Raffles Choice Rider",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 240,
+          "35": 305,
+          "45": 480,
+          "55": 910,
+          "65": 1780,
+          "75": 3450,
+          "85": 5760
+        },
+        "riderPrem": {
+          "25": 125,
+          "35": 163,
+          "45": 259,
+          "55": 490,
+          "65": 950,
+          "75": 1850,
+          "85": 3090
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "coins",
+          "rider"
+        ]
+      },
+      {
+        "key": "b",
+        "name": "Raffles Shield B",
+        "ward": 1,
+        "limit": 300000,
+        "deductible": 2000,
+        "coins": 10,
+        "rider": {
+          "name": "Raffles Choice Rider",
+          "coins": 5,
+          "cap": 6000
+        },
+        "prem": {
+          "25": 140,
+          "35": 175,
+          "45": 275,
+          "55": 520,
+          "65": 1020,
+          "75": 1980,
+          "85": 3300
+        },
+        "riderPrem": {
+          "25": 80,
+          "35": 100,
+          "45": 160,
+          "55": 300,
+          "65": 580,
+          "75": 1130,
+          "85": 1880
+        },
+        "sourced": [
+          "ward",
+          "limit",
+          "coins",
+          "rider"
+        ]
+      }
+    ],
+    "family": "hospital"
+  },
+  "rhi-choice-rider": {
+    "attachesTo": "Raffles Shield",
+    "coins": 5,
+    "cap": 6000,
+    "prem": {
+      "25": 232,
+      "35": 310,
+      "45": 505,
+      "55": 950,
+      "65": 1845,
+      "75": 3590,
+      "85": 6020
+    },
+    "sourced": [
+      "coins",
+      "cap"
+    ],
+    "tierNote": "5% co-payment capped at S$6,000 a policy year on the panel, extended panel or a restructured hospital.",
+    "family": "hospital"
+  },
+  "rhi-premier-rider": {
+    "attachesTo": "Raffles Shield",
+    "coins": 5,
+    "cap": 3000,
+    "prem": {
+      "25": 265,
+      "35": 355,
+      "45": 575,
+      "55": 1085,
+      "65": 2110,
+      "75": 4100,
+      "85": 6880
+    },
+    "sourced": [
+      "coins"
+    ],
+    "tierNote": "Confirm the current co-payment cap — Raffles caps at S$3,000 for pre-authorised extended-panel treatment.",
+    "family": "hospital"
+  },
+  "rhi-key-rider": {
+    "attachesTo": "Raffles Shield",
+    "coins": 5,
+    "cap": 6000,
+    "prem": {
+      "25": 250,
+      "35": 335,
+      "45": 545,
+      "55": 1025,
+      "65": 1995,
+      "75": 3880,
+      "85": 6500
+    },
+    "sourced": [],
+    "tierNote": "Withdrawn 1 Apr 2026 and replaced by Raffles Choice Rider — in force for existing policies only.",
+    "family": "hospital"
+  },
+  "rhi-cancer-guard": {
+    "attachesTo": "Raffles Shield",
+    "benefitLimit": 250000,
+    "prem": {
+      "25": 120,
+      "35": 160,
+      "45": 260,
+      "55": 490,
+      "65": 950,
+      "75": 1850,
+      "85": 3100
+    },
+    "sourced": [
+      "benefitLimit"
+    ],
+    "tierNote": "Up to S$250,000 a policy year of non-CDL cancer drug treatment.",
+    "family": "hospital"
+  },
+  "alz-care-individual": {
+    "ward": 3,
+    "limit": 1000000,
+    "deductible": 0,
+    "coins": 0,
+    "prem": {
+      "25": 1800,
+      "35": 2300,
+      "45": 3400,
+      "55": 5200,
+      "65": 8500,
+      "75": 14000,
+      "85": 22000
+    },
+    "sourced": [
+      "limit"
+    ],
+    "tierNote": "International private medical cover, not an Integrated Shield Plan — it does not sit on MediShield Life.",
+    "family": "hospital"
+  },
+  "alz-summit-group": {
+    "ward": 3,
+    "limit": 1000000,
+    "deductible": 0,
+    "coins": 10,
+    "prem": {
+      "25": 1200,
+      "35": 1500,
+      "45": 2200,
+      "55": 3400,
+      "65": 5600,
+      "75": 9200,
+      "85": 14500
+    },
+    "sourced": [],
+    "tierNote": "Group scheme priced on the whole headcount — the figure here is per member, for shape only.",
+    "family": "hospital"
+  },
+  "slf-elite-term-ii": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 190,
+      "35": 260,
+      "45": 520,
+      "55": 1180,
+      "65": 2900,
+      "75": 7200,
+      "85": 17500
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "slf-elite-term-i": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 200,
+      "35": 275,
+      "45": 550,
+      "55": 1250,
+      "65": 3080,
+      "75": 7650,
+      "85": 18600
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "mnl-protect-term-ii": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 185,
+      "35": 250,
+      "45": 505,
+      "55": 1145,
+      "65": 2820,
+      "75": 7000,
+      "85": 17000
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "hsbc-term-protector": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 195,
+      "35": 265,
+      "45": 530,
+      "55": 1200,
+      "65": 2960,
+      "75": 7350,
+      "85": 17900
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "hsbc-term-protect-advantage": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 188,
+      "35": 255,
+      "45": 515,
+      "55": 1165,
+      "65": 2870,
+      "75": 7130,
+      "85": 17300
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "tmls-term-assure-ii": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 192,
+      "35": 262,
+      "45": 525,
+      "55": 1190,
+      "65": 2930,
+      "75": 7280,
+      "85": 17700
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "fwd-term-life-plus": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 175,
+      "35": 240,
+      "45": 485,
+      "55": 1100,
+      "65": 2710,
+      "75": 6730,
+      "85": 16350
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "mnl-protect-decreasing": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 130,
+      "35": 175,
+      "45": 350,
+      "55": 790,
+      "65": 1950,
+      "75": 4840,
+      "85": 11750
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Cover reduces on the chosen schedule — the payout modelled here is the cover at outset.",
+    "family": "lumpsum"
+  },
+  "etq-eprotect-mortgage": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 125,
+      "35": 168,
+      "45": 336,
+      "55": 760,
+      "65": 1875,
+      "75": 4650,
+      "85": 11300
+    },
+    "sourced": [
+      "premiumTermNote"
+    ],
+    "benefitKind": "sumAssured",
+    "tierNote": "Premiums are charged for 90% of the policy term; cover tracks the outstanding loan.",
+    "family": "lumpsum"
+  },
+  "slf-wlc": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1450,
+      "35": 1950,
+      "45": 2950,
+      "55": 4900,
+      "65": 8600,
+      "75": 15500,
+      "85": 27000
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Cash value accrues from the start of policy year 3; bonuses are not guaranteed.",
+    "family": "lumpsum"
+  },
+  "hsbc-life-treasure-iii": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1500,
+      "35": 2020,
+      "45": 3050,
+      "55": 5060,
+      "65": 8900,
+      "75": 16000,
+      "85": 27900
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "hsbc-life-treasure-ii": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1540,
+      "35": 2075,
+      "45": 3135,
+      "55": 5200,
+      "65": 9150,
+      "75": 16450,
+      "85": 28700
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "tmls-flexiassurance": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1420,
+      "35": 1910,
+      "45": 2890,
+      "55": 4800,
+      "65": 8430,
+      "75": 15200,
+      "85": 26450
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "ctp-i-secure-legacy-ii": {
+    "payout": {
+      "death": 4,
+      "tpd": 4,
+      "ci": 4,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1680,
+      "35": 2260,
+      "45": 3420,
+      "55": 5670,
+      "65": 9970,
+      "75": 17950,
+      "85": 31250
+    },
+    "sourced": [
+      "payout"
+    ],
+    "benefitKind": "sumAssured",
+    "tierNote": "Up to 4x cover over 161 conditions — the multiple steps down at the milestone age.",
+    "family": "lumpsum"
+  },
+  "ctp-infinite-legacy-ii": {
+    "payout": {
+      "death": 3.5,
+      "tpd": 3.5,
+      "ci": 3.5,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1610,
+      "35": 2170,
+      "45": 3280,
+      "55": 5440,
+      "65": 9560,
+      "75": 17200,
+      "85": 29950
+    },
+    "sourced": [
+      "payout"
+    ],
+    "benefitKind": "sumAssured",
+    "tierNote": "Up to 3.5x immediate high cover.",
+    "family": "lumpsum"
+  },
+  "ctp-i-assure99": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1180,
+      "35": 1590,
+      "45": 2400,
+      "55": 3990,
+      "65": 7010,
+      "75": 12630,
+      "85": 21980
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Non-participating — no bonuses, so the payout is the whole of it.",
+    "family": "lumpsum"
+  },
+  "cl-golden-dragon": {
+    "payout": {
+      "death": 1,
+      "tpd": 1,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 1390,
+      "35": 1870,
+      "45": 2830,
+      "55": 4700,
+      "65": 8250,
+      "75": 14870,
+      "85": 25880
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Priced in USD — currency risk sits with the client.",
+    "family": "lumpsum"
+  },
+  "slf-cci-ii": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 620,
+      "35": 980,
+      "45": 1980,
+      "55": 4350,
+      "65": 9800,
+      "75": 21500,
+      "85": 44000
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "slf-multipay-ii": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 880,
+      "35": 1390,
+      "45": 2810,
+      "55": 6180,
+      "65": 13900,
+      "75": 30500,
+      "85": 62400
+    },
+    "sourced": [
+      "ciTotal"
+    ],
+    "benefitKind": "sumAssured",
+    "ciTotal": 9,
+    "tierNote": "Up to 900% of the sum assured in total payouts across claims.",
+    "family": "lumpsum"
+  },
+  "slf-multipay-i": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 840,
+      "35": 1330,
+      "45": 2685,
+      "55": 5900,
+      "65": 13280,
+      "75": 29140,
+      "85": 59600
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "ciTotal": 6,
+    "family": "lumpsum"
+  },
+  "fwd-ci-plus": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 590,
+      "35": 935,
+      "45": 1885,
+      "55": 4145,
+      "65": 9330,
+      "75": 20470,
+      "85": 41900
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "fwd-big-3": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 320,
+      "35": 505,
+      "45": 1020,
+      "55": 2245,
+      "65": 5050,
+      "75": 11080,
+      "85": 22680
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Three conditions only — cancer, heart attack, stroke.",
+    "family": "lumpsum"
+  },
+  "fwd-cancer-20": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 240,
+      "35": 380,
+      "45": 765,
+      "55": 1685,
+      "65": 3790,
+      "75": 8320,
+      "85": 17030
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Cancer only.",
+    "family": "lumpsum"
+  },
+  "fwd-flex": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 1,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 560,
+      "35": 885,
+      "45": 1785,
+      "55": 3925,
+      "65": 8835,
+      "75": 19380,
+      "85": 39670
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "family": "lumpsum"
+  },
+  "slf-di": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 420,
+      "35": 640,
+      "45": 1180,
+      "55": 2380,
+      "65": 4900,
+      "75": 9800,
+      "85": 19600
+    },
+    "sourced": [
+      "monthly"
+    ],
+    "benefitKind": "income",
+    "pctOfIncome": 0.75,
+    "tierNote": "Pays up to 75% of income for as long as the disability lasts.",
+    "family": "lumpsum"
+  },
+  "slf-careshield": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 380,
+      "35": 520,
+      "45": 840,
+      "55": 1520,
+      "65": 2900,
+      "75": 5400,
+      "85": 9800
+    },
+    "sourced": [
+      "monthly"
+    ],
+    "benefitKind": "income",
+    "monthly": {
+      "min": 600,
+      "max": 5000
+    },
+    "tierNote": "Monthly benefit of S$600 – S$5,000, on top of CareShield Life.",
+    "family": "lumpsum"
+  },
+  "slf-eldershield": {
+    "payout": {
+      "death": 0.0,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 0.0
+    },
+    "prem": {
+      "25": 350,
+      "35": 480,
+      "45": 780,
+      "55": 1410,
+      "65": 2690,
+      "75": 5010,
+      "85": 9090
+    },
+    "sourced": [
+      "monthly"
+    ],
+    "benefitKind": "income",
+    "monthly": {
+      "min": 600,
+      "max": 3000
+    },
+    "tierNote": "Monthly benefit of S$600 – S$3,000 for existing ElderShield cohorts.",
+    "family": "lumpsum"
+  },
+  "mnl-readyprotect": {
+    "payout": {
+      "death": 1,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 1
+    },
+    "prem": {
+      "25": 180,
+      "35": 190,
+      "45": 210,
+      "55": 250,
+      "65": 330,
+      "75": 480,
+      "85": 720
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Accident cover only — nothing pays on illness.",
+    "family": "lumpsum"
+  },
+  "tmls-protect-pa": {
+    "payout": {
+      "death": 1,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 1
+    },
+    "prem": {
+      "25": 175,
+      "35": 185,
+      "45": 205,
+      "55": 245,
+      "65": 322,
+      "75": 470,
+      "85": 705
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Accident cover only — nothing pays on illness.",
+    "family": "lumpsum"
+  },
+  "sompo-pa-ease": {
+    "payout": {
+      "death": 1,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 1
+    },
+    "prem": {
+      "25": 150,
+      "35": 158,
+      "45": 175,
+      "55": 210,
+      "65": 276,
+      "75": 403,
+      "85": 604
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Accident cover only — nothing pays on illness.",
+    "family": "lumpsum"
+  },
+  "sompo-pastar": {
+    "payout": {
+      "death": 1,
+      "tpd": 0.0,
+      "ci": 0.0,
+      "accident": 1
+    },
+    "prem": {
+      "25": 195,
+      "35": 205,
+      "45": 228,
+      "55": 272,
+      "65": 358,
+      "75": 522,
+      "85": 783
+    },
+    "sourced": [],
+    "benefitKind": "sumAssured",
+    "tierNote": "Accident cover only — nothing pays on illness.",
+    "family": "lumpsum"
+  },
+  "slf-flexi-life-income-ii": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "tierNote": "Lifetime income stream rather than a maturity lump sum.",
+    "family": "accumulation"
+  },
+  "mnl-readybuilder-ii": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "mnl-ready-lifeincome-iii": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "mnl-retireready-iii": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "ctp-infinite-harvest-iii": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "ctp-i-save": {
+    "horizon": {
+      "premYears": 1,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 50000,
+      "35": 50000,
+      "45": 50000,
+      "55": 50000,
+      "65": 50000,
+      "75": 50000,
+      "85": 50000
+    },
+    "sourced": [],
+    "tierNote": "Single premium.",
+    "family": "accumulation"
+  },
+  "cl-savereward-101-iii-sgd": {
+    "horizon": {
+      "premYears": 3,
+      "illusLow": 2.08,
+      "illusHigh": 2.08,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 20000,
+      "35": 20000,
+      "45": 20000,
+      "55": 20000,
+      "65": 20000,
+      "75": 20000,
+      "85": 20000
+    },
+    "sourced": [
+      "illusLow",
+      "illusHigh"
+    ],
+    "tierNote": "Guaranteed 2.08% p.a. on the SGD series — the same figure at both illustration rates.",
+    "family": "accumulation"
+  },
+  "cl-savereward-101-iii-rmb": {
+    "horizon": {
+      "premYears": 3,
+      "illusLow": 3.4,
+      "illusHigh": 3.4,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 20000,
+      "35": 20000,
+      "45": 20000,
+      "55": 20000,
+      "65": 20000,
+      "75": 20000,
+      "85": 20000
+    },
+    "sourced": [
+      "illusLow",
+      "illusHigh"
+    ],
+    "tierNote": "Guaranteed 3.40% p.a. on the RMB series — currency risk sits with the client.",
+    "family": "accumulation"
+  },
+  "cl-savereward-101-ii": {
+    "horizon": {
+      "premYears": 3,
+      "illusLow": 2.0,
+      "illusHigh": 2.0,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 20000,
+      "35": 20000,
+      "45": 20000,
+      "55": 20000,
+      "65": 20000,
+      "75": 20000,
+      "85": 20000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "cl-saveforward": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "cl-lifetime-income": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "etq-enrich-income": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "etq-enrich-retirement": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "etq-enrich-saver": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 3.0,
+      "illusHigh": 4.25,
+      "capitalGuaranteed": true
+    },
+    "prem": {
+      "25": 12000,
+      "35": 12000,
+      "45": 12000,
+      "55": 12000,
+      "65": 12000,
+      "75": 12000,
+      "85": 12000
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "slf-savvy-invest-ii": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "hsbc-wealth-voyage": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "hsbc-wealth-abundance": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "tmls-atlas-wealth": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "tmls-goelite": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "tmls-wealth-future": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 9600,
+      "35": 9600,
+      "45": 9600,
+      "55": 9600,
+      "65": 9600,
+      "75": 9600,
+      "85": 9600
+    },
+    "sourced": [],
+    "family": "accumulation"
+  },
+  "tmls-gowealthenrich": {
+    "horizon": {
+      "premYears": 1,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 100000,
+      "35": 100000,
+      "45": 100000,
+      "55": 100000,
+      "65": 100000,
+      "75": 100000,
+      "85": 100000
+    },
+    "sourced": [],
+    "tierNote": "Single premium.",
+    "family": "accumulation"
+  },
+  "tlb-genesis-iii": {
+    "horizon": {
+      "premYears": 5,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 200000,
+      "35": 200000,
+      "45": 200000,
+      "55": 200000,
+      "65": 200000,
+      "75": 200000,
+      "85": 200000
+    },
+    "sourced": [],
+    "tierNote": "Priced in USD, from US$1m of cover — offshore, high entry.",
+    "family": "accumulation"
+  },
+  "tlb-prospera": {
+    "horizon": {
+      "premYears": 1,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 200000,
+      "35": 200000,
+      "45": 200000,
+      "55": 200000,
+      "65": 200000,
+      "75": 200000,
+      "85": 200000
+    },
+    "sourced": [],
+    "tierNote": "Single premium, offshore.",
+    "family": "accumulation"
+  },
+  "fpi-premier-advance": {
+    "horizon": {
+      "premYears": 10,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 24000,
+      "35": 24000,
+      "45": 24000,
+      "55": 24000,
+      "65": 24000,
+      "75": 24000,
+      "85": 24000
+    },
+    "sourced": [],
+    "tierNote": "Offshore regular-premium savings.",
+    "family": "accumulation"
+  },
+  "fpi-reserve": {
+    "horizon": {
+      "premYears": 1,
+      "illusLow": 4.0,
+      "illusHigh": 8.0,
+      "capitalGuaranteed": false
+    },
+    "prem": {
+      "25": 200000,
+      "35": 200000,
+      "45": 200000,
+      "55": 200000,
+      "65": 200000,
+      "75": 200000,
+      "85": 200000
+    },
+    "sourced": [],
+    "tierNote": "Single premium, offshore bond.",
+    "family": "accumulation"
+  },
+  "etq-eprotect-travel": {
+    "benefitLimit": 1000000,
+    "prem": {
+      "25": 185,
+      "35": 185,
+      "45": 185,
+      "55": 185,
+      "65": 185,
+      "75": 185,
+      "85": 185
+    },
+    "sourced": [
+      "benefitLimit"
+    ],
+    "tierNote": "Annual multi-trip basis.",
+    "family": "general"
+  },
+  "msig-traveleasy": {
+    "benefitLimit": 1000000,
+    "prem": {
+      "25": 205,
+      "35": 205,
+      "45": 205,
+      "55": 205,
+      "65": 205,
+      "75": 205,
+      "85": 205
+    },
+    "sourced": [
+      "benefitLimit"
+    ],
+    "tierNote": "Annual multi-trip basis; a Pre-Ex variant covers pre-existing conditions.",
+    "family": "general"
+  },
+  "hlas-travel-protect360": {
+    "benefitLimit": 1000000,
+    "prem": {
+      "25": 172,
+      "35": 172,
+      "45": 172,
+      "55": 172,
+      "65": 172,
+      "75": 172,
+      "85": 172
+    },
+    "sourced": [
+      "benefitLimit"
+    ],
+    "tierNote": "Annual multi-trip basis.",
+    "family": "general"
+  },
+  "etq-eprotect-maid": {
+    "benefitLimit": 60000,
+    "prem": {
+      "25": 340,
+      "35": 340,
+      "45": 340,
+      "55": 340,
+      "65": 340,
+      "75": 340,
+      "85": 340
+    },
+    "sourced": [],
+    "tierNote": "Written to the MOM required limits.",
+    "family": "general"
+  },
+  "msig-maidplus": {
+    "benefitLimit": 60000,
+    "prem": {
+      "25": 375,
+      "35": 375,
+      "45": 375,
+      "55": 375,
+      "65": 375,
+      "75": 375,
+      "85": 375
+    },
+    "sourced": [],
+    "tierNote": "Written to the MOM required limits.",
+    "family": "general"
+  },
+  "msig-homeplus": {
+    "benefitLimit": 270000,
+    "prem": {
+      "25": 255,
+      "35": 255,
+      "45": 255,
+      "55": 255,
+      "65": 255,
+      "75": 255,
+      "85": 255
+    },
+    "sourced": [
+      "benefitLimit"
+    ],
+    "tierNote": "Contents limit; buildings cover is separate.",
+    "family": "general"
+  },
+  "msig-motormax": {
+    "benefitLimit": 40000,
+    "prem": {
+      "25": 1250,
+      "35": 1250,
+      "45": 1250,
+      "55": 1250,
+      "65": 1250,
+      "75": 1250,
+      "85": 1250
+    },
+    "sourced": [],
+    "tierNote": "Sum insured is market value — the figure here is a stand-in for a mid-range car.",
+    "family": "general"
+  }
+}
