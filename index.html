@@ -946,23 +946,30 @@ const PRODUCTS = [
 {
   id:"hsbc-term-protect-advantage", name:"HSBC Life Term Protect Advantage", insurer:"HSBC Life",
   category:"Life protection", type:"Term life",
-  needs:["Income replacement"],
+  needs:["Income replacement","Critical illness cover","Mortgage protection"],
   segments:["Mass","Mass affluent"],
   funding:["Cash"], currency:["SGD"],
-  premiumBasis:"Regular premium", coverageTerm:"5 – 40 years, or to age 65 / 75",
+  premiumBasis:"Regular premium, limited pay option", coverageTerm:"Fixed terms to selected ages including 85 and 99; renewable terms being phased out",
   entryAge:"18 – 65", sumAssured:"From S$100,000", uw:"Full underwriting",
-  est:["entryAge","sumAssured","coverageTerm","uw"],
+  est:["entryAge","sumAssured","uw"],
   status:"Open",
-  summary:"Protection-range term plan from HSBC Life.",
+  summary:"Level term covering death, total and permanent disability, terminal illness and advanced-stage critical illness in the base plan. A guaranteed insurability option lets the client raise cover without underwriting at set life milestones, one of which is buying a property in Singapore.",
   features:[
-    "Term life protection"
+    "Base plan covers death, TPD, terminal illness and advanced-stage critical illness",
+    "Advanced-stage CI pays a lump sum equal to the sum assured and waives all future premiums on the plan and its riders",
+    "Guaranteed insurability option at life milestones — marriage or divorce, turning 21, a newborn or adoption, a child starting primary, secondary, polytechnic or university, and buying a property in Singapore",
+    "Convertible to any regular-premium whole life or endowment without evidence of health, before age 65",
+    "Premium payment can be deferred up to 365 days after 30 consecutive days of unemployment",
+    "Guaranteed surrender value on the limited-pay option"
   ],
   notes:[
     "Compare against Term Protector and Term Protector Prime before quoting",
-    "Terms not verified here — read the product summary"
+    "Level term, not decreasing term — for a reducing home loan it pays more than the balance, and costs accordingly. ManuProtect Decreasing and Etiqa ePROTECT mortgage track the outstanding loan instead",
+    "The property-purchase milestone on the GIO is the mortgage hook: cover can be raised without underwriting when the client takes the loan on",
+    "Read off the HSBC product page through a search summary and third-party reviews on 21 Aug 2026 — the page and brochure could not be opened directly. Confirm against the product summary"
   ],
   riders:[],
-  source:"https://www.insurance.hsbc.com.sg/life-and-critical-illness/products/term-protect-advantage/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-20"
+  source:"https://www.insurance.hsbc.com.sg/life-and-critical-illness/products/term-protect-advantage/", sourceName:"insurance.hsbc.com.sg", sourced:"2026-08-21"
 },
 {
   id:"hsbc-wealth-voyage", name:"HSBC Life Wealth Voyage", insurer:"HSBC Life",
