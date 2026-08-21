@@ -209,4 +209,15 @@ page stays standalone; the script is a regeneration tool, not a runtime dependen
 **Add a product** — add the record to `PRODUCTS` in `index.html`, add its bench fields to
 `bench-data.json`, re-run the script. The build fails loudly if either half is missing.
 
+**Classification guard.** A client need that only one family can answer must not pick up members
+from another — that is how a savings plan ends up filed under a protection need, or a travel policy
+under hospital bills. `build-panel.mjs` carries a `NEED_FAMILY` map and warns on every stray:
+
+```
+  ! "MSIG MaidPlus" is general, but carries the accumulation-only need "Retirement income"
+```
+
+It warns rather than throws, because some needs legitimately span families — *Legacy planning*
+covers both whole life and offshore savings. Add a need to the map only when one family owns it.
+
 **This is a demo, not advice, and not a substitute for a benefit illustration.**

@@ -144,6 +144,30 @@ for (const r of panel) {
   if (ages.length !== 7) throw new Error(`${r.id}: premium curve needs 7 anchors, has ${ages.length}`);
 }
 
+/* A client need that only one family can answer must not pick up members from
+   another — that is how a savings plan ends up filed under a protection need,
+   or a travel policy under hospital bills. Warn rather than throw: an adviser
+   may legitimately add a need that spans families (Legacy planning does). */
+const NEED_FAMILY = {
+  "Hospital bills": "hospital",
+  "Cancer drug costs": "hospital",
+  "Overseas medical": "general",
+  "Travel disruption": "general",
+  "Domestic helper": "general",
+  "Accident cover": "lumpsum",
+  "Income replacement": "lumpsum",
+  "Mortgage protection": "lumpsum",
+  "Critical illness cover": "lumpsum",
+  "Retirement income": "accumulation",
+  "Child education": "accumulation",
+};
+for (const [need, want] of Object.entries(NEED_FAMILY)) {
+  const strays = panel.filter((r) => r.needs.includes(need) && r.family !== want);
+  for (const r of strays) {
+    console.warn(`  ! "${r.name}" is ${r.family}, but carries the ${want}-only need "${need}"`);
+  }
+}
+
 const body = panel.map((r) => JSON.stringify(r)).join(",\n");
 const block = `${BEGIN}\nvar PANEL = [\n${body}\n];\n${END}`;
 
