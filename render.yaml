@@ -6,7 +6,7 @@ services:
     name: finexis-knowledge-bank
     runtime: docker
     region: singapore
-    plan: starter
+    plan: free                    # 512 MB, sleeps when idle; "starter" (USD 7/mo) if uploads struggle
     healthCheckPath: /api/health
     envVars:
       - key: SITE_PASSWORD          # shared password in front of the whole site

@@ -70,3 +70,14 @@ def test_site_password(monkeypatch):
     good = base64.b64encode(b"anyone:s3cret").decode()
     r = c.get("/api/search?q=x", headers={"Authorization": f"Basic {good}"})
     assert r.status_code != 401 or "X-KB-User" in r.text   # past the gate; app auth answers now
+
+
+def test_supabase_setup_sql_is_up_to_date():
+    import importlib.util
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    spec = importlib.util.spec_from_file_location("b", root / "scripts" / "build_supabase_sql.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert (root / "db" / "supabase_setup.sql").read_text() == mod.build(), \
+        "run: python scripts/build_supabase_sql.py"

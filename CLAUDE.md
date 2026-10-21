@@ -88,7 +88,7 @@ independent of the backend below.
 | `db/init/` | Roles, schema + RLS policies, dev users. Run once by the Postgres image on an empty volume. |
 | `scripts/ingest_folder.py` | Bulk ingest + extraction report (`--dry-run` needs no DB). |
 | `scripts/backup.sh` | `pg_dump` + rsync of original files, keeps 14 dumps. |
-| `scripts/supabase_init.sh` | One-time schema setup on a Supabase project (the hosted equivalent of `db/init`). |
+| `db/supabase_setup.sql` | One-time Supabase setup to paste into its SQL Editor. Generated from `db/init` by `scripts/build_supabase_sql.py`; a test fails if it is stale. |
 | `render.yaml` | Render blueprint for the hosted test copy. |
 
 ## Access control
@@ -154,8 +154,8 @@ DATABASE_URL=postgresql://kb_app:<pw>@localhost:5432/knowledge_bank pytest -q
 
 For a test phase with **public documents only** (compliance has not cleared client data in the cloud):
 
-1. Supabase project in the Singapore region. Run `scripts/supabase_init.sh` with the project's
-   direct DB URL and a new `KB_APP_PASSWORD`. Create a **private** bucket `documents`.
+1. Supabase project in the Singapore region. Paste `db/supabase_setup.sql` into the SQL Editor
+   (after replacing `CHANGE_ME_APP_PASSWORD`) and run it. Create a **private** bucket `documents`.
 2. Render: New > Blueprint > this repo (reads `render.yaml`). Set `SITE_PASSWORD`,
    `DATABASE_URL` (Supabase *session* pooler, port 5432, user `kb_app.<project-ref>`; avoid the
    6543 transaction pooler), `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and the model settings.
