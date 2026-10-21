@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card" style="max-width:420px">
+  <h2 style="margin-top:0">Who are you?</h2>
+  <p class="muted small">Prototype only: pick a user. This is replaced by company sign-in before real use.</p>
+  {% for u in users %}<p><a href="/login?u={{ u.username|urlencode }}">{{ u.display_name }}</a></p>{% endfor %}
+</div>
+{% endblock %}

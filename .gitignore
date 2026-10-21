@@ -1,0 +1,12 @@
+# Never commit documents: this repository is public.
+data/
+samples/
+*.pdf
+*.docx
+*.xlsx
+.env
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+reports/
