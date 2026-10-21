@@ -122,6 +122,20 @@ CREATE TABLE search_log (
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Every chat question and answer, with the exact passages the answer was given, so an answer
+-- shown to an adviser can be traced back to its sources later.
+CREATE TABLE chat_log (
+    id         bigserial PRIMARY KEY,
+    user_id    integer REFERENCES users(id),
+    question   text  NOT NULL,
+    answer     text  NOT NULL,
+    mode       text  NOT NULL,                -- llm | passages | no_results | llm_error
+    model      text,
+    sources    jsonb NOT NULL,                -- [{document_id, page_no, score}], in the order cited
+    filters    jsonb NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- ---------------------------------------------------------------------------------------------
 -- Row-level security. The app sets app.user_id per transaction (SET LOCAL); with it unset a
 -- connection sees shared documents only.
@@ -169,9 +183,13 @@ ALTER TABLE search_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY search_log_insert ON search_log FOR INSERT WITH CHECK (user_id IS NOT DISTINCT FROM kb_current_user());
 CREATE POLICY search_log_read   ON search_log FOR SELECT USING (user_id = kb_current_user());
 
+ALTER TABLE chat_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY chat_log_insert ON chat_log FOR INSERT WITH CHECK (user_id IS NOT DISTINCT FROM kb_current_user());
+CREATE POLICY chat_log_read   ON chat_log FOR SELECT USING (user_id = kb_current_user());
+
 GRANT SELECT ON users TO kb_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON documents, pages, doc_tables, table_rows, document_links TO kb_app;
-GRANT SELECT, INSERT ON search_log TO kb_app;
+GRANT SELECT, INSERT ON search_log, chat_log TO kb_app;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO kb_app;
 GRANT EXECUTE ON FUNCTION kb_current_user() TO kb_app;
 

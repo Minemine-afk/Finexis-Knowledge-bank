@@ -13,7 +13,7 @@ details summary{cursor:pointer;color:var(--accent)}
 .upload input,.upload select{width:100%}
 </style>
 
-<form method="get" action="/">
+<form method="get" action="/search">
 <div class="layout">
   <aside class="card filters">
     {% for key, label in [("issuer","Issuer / insurer"),("product_type","Product type"),("document_type","Document type")] %}
@@ -29,9 +29,9 @@ details summary{cursor:pointer;color:var(--accent)}
     <div class="field"><label><input type="checkbox" name="mine" value="true" style="width:auto" {% if f.mine %}checked{% endif %}> Only my documents</label></div>
     <div class="field"><label for="date_from">Effective from</label><input type="date" id="date_from" name="date_from" value="{{ f.date_from or '' }}"></div>
     <div class="field"><label for="date_to">Effective to</label><input type="date" id="date_to" name="date_to" value="{{ f.date_to or '' }}"></div>
-    <div class="field"><label for="crm_entity_id">CRM record id</label><input id="crm_entity_id" name="crm_entity_id" value="{{ f.crm_entity_id or '' }}" placeholder="e.g. client id"></div>
+    {% if show_crm %}<div class="field"><label for="crm_entity_id">CRM record id</label><input id="crm_entity_id" name="crm_entity_id" value="{{ f.crm_entity_id or '' }}" placeholder="e.g. client id"></div>{% endif %}
     <button type="submit" style="width:100%">Apply</button>
-    <p class="small"><a href="/">Clear all</a></p>
+    <p class="small"><a href="/search">Clear all</a></p>
   </aside>
 
   <section>
@@ -101,8 +101,10 @@ details summary{cursor:pointer;color:var(--accent)}
       <div><label>Effective date</label><input type="date" name="effective_date"></div>
       <div><label>Document type</label><input name="document_type" placeholder="detected if blank"></div>
       <div><label>Version</label><input name="version"></div>
+      {% if show_crm %}
       <div><label>CRM record type</label><select name="crm_entity_type"><option>client</option><option>policy</option><option>case</option></select></div>
       <div><label>CRM record id</label><input name="crm_entity_id" placeholder="optional"></div>
+      {% endif %}
     </div>
     <button type="submit">Upload and extract</button>
   </form>

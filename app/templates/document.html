@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ doc.title }} · Knowledge Bank{% endblock %}
 {% block body %}
-<p class="small"><a href="/">← Back to search</a></p>
+<p class="small"><a href="/">← Back to chat</a> · <a href="/search">Search documents</a></p>
 <div class="card">
   <h2 style="margin:0 0 6px">{{ doc.title }}</h2>
   <p class="small muted" style="margin:0 0 12px">
@@ -15,7 +15,7 @@
       <td>{{ doc[key] if doc[key] is not none else '—' }}
         {% if doc.meta_source.get(key) == 'inferred' %}<span class="tag private" title="Detected from the text; please check">inferred</span>{% endif %}</td></tr>
     {% endfor %}
-    {% for l in doc.links %}<tr><th>{{ l.system|upper }} {{ l.entity_type }}</th><td>{{ l.entity_id }}</td></tr>{% endfor %}
+    {% if show_crm %}{% for l in doc.links %}<tr><th>{{ l.system|upper }} {{ l.entity_type }}</th><td>{{ l.entity_id }}</td></tr>{% endfor %}{% endif %}
   </table>
 </div>
 

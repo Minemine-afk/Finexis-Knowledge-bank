@@ -12,6 +12,7 @@ from psycopg.types.json import Jsonb
 # Sentinels instead of <mark> so the snippet can be HTML-escaped safely before highlighting.
 _START, _STOP = "\x02", "\x03"
 _HEADLINE_OPTS = f"MaxFragments=2, MinWords=6, MaxWords=24, FragmentDelimiter=\" … \", StartSel={_START}, StopSel={_STOP}"
+_PASSAGE_OPTS = "MaxFragments=4, MinWords=25, MaxWords=70, FragmentDelimiter=\" … \", StartSel=\"\", StopSel=\"\""
 
 
 @dataclass
@@ -146,3 +147,43 @@ def facets(conn: psycopg.Connection) -> dict[str, list[str]]:
         out[key] = [r["v"] for r in conn.execute(
             f"SELECT DISTINCT {key} AS v FROM documents WHERE {key} IS NOT NULL ORDER BY 1").fetchall()]
     return out
+
+
+# --- Retrieval for chat -----------------------------------------------------------------------
+# A typed question ("what is the waiting period for pre-existing conditions?") rarely has every
+# word on one page, so chat retrieval ORs the question's terms and lets ranking reward pages that
+# match more of them. Still plain full-text search: same question, same data, same passages.
+
+def _any_terms_query() -> str:
+    return "SELECT nullif(replace(plainto_tsquery('english', %(q)s)::text, ' & ', ' | '), '')::tsquery AS tsq"
+
+
+def retrieve_passages(conn: psycopg.Connection, q: str, filters: Filters, k: int = 6,
+                      max_chars: int = 1800) -> list[dict]:
+    """Top pages across all visible documents for a question, each trimmed around its matches."""
+    where, params = filters.sql()
+    params.update(q=q.strip(), k=k)
+    if not params["q"]:
+        return []
+    rows = conn.execute(
+        f"""
+        WITH query AS ({_any_terms_query()})
+        SELECT d.id AS document_id, d.title, d.file_name, d.mime_type, d.issuer, d.document_type,
+               d.effective_date, d.visibility::text AS visibility, p.page_no, p.label,
+               round((ts_rank_cd(p.tsv, query.tsq, 32) + 0.5 * ts_rank_cd(d.meta_tsv, query.tsq, 32))::numeric, 6) AS score,
+               ts_headline('english', p.text, query.tsq, %(opts)s) AS snippet,
+               CASE WHEN length(p.text) <= %(max_chars)s THEN p.text
+                    ELSE ts_headline('english', p.text, query.tsq, %(passage_opts)s) END AS passage
+        FROM documents d JOIN pages p ON p.document_id = d.id, query
+        WHERE query.tsq IS NOT NULL AND (p.tsv @@ query.tsq OR d.meta_tsv @@ query.tsq) AND {where}
+        ORDER BY score DESC, d.id, p.page_no
+        LIMIT %(k)s
+        """,
+        {**params, "opts": _HEADLINE_OPTS, "max_chars": max_chars, "passage_opts": _PASSAGE_OPTS},
+    ).fetchall()
+    for r in rows:
+        r["score"] = float(r["score"])
+        r["snippet"] = highlight(r["snippet"])
+        # the passage is what a language model reads: the whole page if short, else the parts around matches
+        r["passage"] = "\n".join(l for l in (x.strip() for x in r.pop("passage").splitlines()) if l)
+    return rows

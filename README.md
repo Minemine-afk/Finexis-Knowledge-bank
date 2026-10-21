@@ -2,9 +2,10 @@
 
 Two things live in this repo:
 
-- **Document knowledge bank (backend prototype)**: upload PDFs, Word and Excel files; text, tables
-  and metadata are extracted; search by keyword plus filters, with private/shared access enforced
-  in the database. Python, FastAPI, Postgres in Docker. Quick start: `cp .env.example .env`, set
+- **Document knowledge bank (prototype)**: upload PDFs, Word and Excel files; text, tables and
+  metadata are extracted; ask questions in a chat and get answers with cited source pages (from an
+  optional local model, or the matching passages without one), or search by keyword plus filters.
+  Private/shared access is enforced in the database. Python, FastAPI, Postgres in Docker. Quick start: `cp .env.example .env`, set
   passwords, `docker compose up -d`, open http://localhost:8000. Details in [CLAUDE.md](CLAUDE.md).
 - **Policy Desk** (`index.html`): the earlier static product-catalogue demo, described below.
 

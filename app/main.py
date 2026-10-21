@@ -20,10 +20,10 @@ from markupsafe import Markup
 from psycopg.types.json import Jsonb
 from pydantic import BaseModel
 
-from . import db
+from . import db, llm
 from .extract import MIME_TYPES
 from .ingest import METADATA_FIELDS, add_link, ingest_file, merge_metadata, storage_dir
-from .search import DOC_COLUMNS, Filters, facets, search, search_table_rows
+from .search import DOC_COLUMNS, Filters, facets, retrieve_passages, search, search_table_rows
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +33,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Finexis Knowledge Bank", version="0.1.0", lifespan=lifespan)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+# CRM fields are hidden in the UI until the CRM is connected; the API and schema support them already.
+templates.env.globals["show_crm"] = os.environ.get("SHOW_CRM", "") == "1"
 MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_MB", "100")) * 1024 * 1024
 
 
@@ -176,9 +178,13 @@ async def api_upload(
         try:
             with db.as_user(user["id"]) as conn:
                 doc_id, created = ingest_file(conn, user["id"], src, file.filename, visibility, metadata, links)
+            with db.as_user(user["id"]) as conn:
+                doc = conn.execute(
+                    """SELECT id, title, visibility::text AS visibility, page_count, issuer, document_type,
+                              effective_date, extraction FROM documents WHERE id = %s""", (doc_id,)).fetchone()
         except ValueError as e:
             raise HTTPException(422, str(e))
-    return {"id": doc_id, "created": created}
+    return {"id": doc_id, "created": created, "document": doc}
 
 
 class MetadataPatch(BaseModel):
@@ -250,6 +256,54 @@ def api_crm_documents(user: User, entity_type: str, entity_id: str):
             (entity_type.lower(), entity_id)).fetchall()
 
 
+class ChatTurn(BaseModel):
+    role: str
+    content: str
+
+
+class ChatIn(BaseModel):
+    message: str
+    history: list[ChatTurn] = []
+    issuer: str | None = None
+    product_type: str | None = None
+    document_type: str | None = None
+    visibility: str | None = None
+    mine: bool = False
+
+
+@app.post("/api/chat")
+def api_chat(user: User, body: ChatIn):
+    """Retrieve passages the user may see, then answer from them (or return them if no model is set up)."""
+    question = body.message.strip()
+    if not question:
+        raise HTTPException(422, "Empty message")
+    filters = filters_from(body.issuer, body.product_type, body.document_type, body.visibility, body.mine)
+    history = [t.model_dump() for t in body.history]
+    # Follow-ups ("and for age 50?") need the previous question's words to find anything.
+    previous = next((t["content"] for t in reversed(history) if t["role"] == "user"), "")
+    retrieval_query = question if len(question.split()) > 6 or not previous else f"{previous} {question}"
+
+    with db.as_user(user["id"]) as conn:
+        passages = retrieve_passages(conn, retrieval_query, filters)
+    answer, mode = llm.answer(question, history, passages)
+
+    sources = [{
+        "n": n, "document_id": p["document_id"], "title": p["title"], "page_no": p["page_no"], "label": p["label"],
+        "issuer": p["issuer"], "document_type": p["document_type"], "effective_date": p["effective_date"],
+        "visibility": p["visibility"], "snippet": p["snippet"], "score": p["score"],
+        "url": f"/api/documents/{p['document_id']}/file" + ("#page=%d" % p["page_no"] if p["mime_type"] == "application/pdf" else ""),
+    } for n, p in enumerate(passages, start=1)]
+
+    with db.as_user(user["id"]) as conn:
+        chat_id = conn.execute(
+            """INSERT INTO chat_log (user_id, question, answer, mode, model, sources, filters)
+               VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+            (user["id"], question, answer, mode, llm.model_name() if mode == "llm" else None,
+             Jsonb([{"document_id": s["document_id"], "page_no": s["page_no"], "score": s["score"]} for s in sources]),
+             Jsonb(filters.as_log()))).fetchone()["id"]
+    return {"id": chat_id, "answer": answer, "mode": mode, "model": llm.model_name(), "sources": sources}
+
+
 @app.get("/api/health")
 def health():
     with db.as_user(None) as conn:
@@ -276,6 +330,18 @@ def logout():
 
 
 @app.get("/", response_class=HTMLResponse)
+def ui_chat(request: Request, user: Annotated[dict | None, Depends(current_user)]):
+    if user is None:
+        return templates.TemplateResponse(request, "login.html", {"users": db.all_users()})
+    with db.as_user(user["id"]) as conn:
+        options = facets(conn)
+        counts = conn.execute("""SELECT count(*) AS total, count(*) FILTER (WHERE owner_id = kb_current_user()) AS mine
+                                 FROM documents""").fetchone()
+    return templates.TemplateResponse(request, "chat.html", {
+        "user": user, "options": options, "counts": counts, "model": llm.model_name()})
+
+
+@app.get("/search", response_class=HTMLResponse)
 def ui_search(request: Request, filters: FilterDep, user: Annotated[dict | None, Depends(current_user)],
               q: str = "", offset: Annotated[int, Query(ge=0)] = 0, uploaded: int | None = None):
     if user is None:

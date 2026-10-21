@@ -31,16 +31,19 @@ the core; models are optional later additions.
 - Ingestion: PyMuPDF for text, pdfplumber for tables, Tesseract OCR for scanned PDFs
 - Metadata fields: issuer/insurer, product type, policy name, effective date, document type, version, owner, visibility (shared/private)
 - Search: keyword (full-text, ranked) plus metadata filters
-- UI: small FastAPI app with server-rendered pages
+- UI: small FastAPI app. **The main screen is a chat** (requested 2026-10-21): ask a question,
+  get an answer built only from retrieved passages, with numbered sources linking to the page.
+  Keyword search with filters is still at `/search`.
 - Index chart titles, captions and axis labels as text; store tables as structured rows
 
 ### Phase 2: light model
 
 - Local embeddings (bge-small, all-MiniLM or nomic-embed, CPU is fine) for hybrid keyword + semantic search (pgvector)
 
-### Phase 3: optional
+### Phase 3: local LLM (wired in, optional)
 
-- Small local LLM (3B-8B via Ollama or llama.cpp) for summaries and Q&A over retrieved passages, always showing source page
+- Small local LLM (3B-8B via Ollama or llama.cpp) for Q&A over retrieved passages, always showing source page.
+  The chat works without it (shows the passages); set `LLM_MODEL` to turn written answers on.
 
 ### Database notes
 
@@ -77,8 +80,9 @@ independent of the backend below.
 |---|---|
 | `app/extract.py` | File → pages, tables, suggested metadata. Pure, no DB. |
 | `app/ingest.py` | Hash, store file (content-addressed under `STORAGE_DIR`), extract, insert in one transaction. |
-| `app/search.py` | Full-text search + filters, table-row search, facets, search log. |
-| `app/main.py` | FastAPI: JSON API under `/api`, HTML UI at `/`. |
+| `app/search.py` | Full-text search + filters, table-row search, facets, search log, chat passage retrieval. |
+| `app/llm.py` | Optional local model (Ollama or OpenAI-compatible): prompt, call, fallbacks. |
+| `app/main.py` | FastAPI: JSON API under `/api`, chat UI at `/`, search UI at `/search`. |
 | `app/db.py` | Connection pool; `as_user(id)` sets `app.user_id` for RLS. |
 | `db/init/` | Roles, schema + RLS policies, dev users. Run once by the Postgres image on an empty volume. |
 | `scripts/ingest_folder.py` | Bulk ingest + extraction report (`--dry-run` needs no DB). |
@@ -95,7 +99,22 @@ Identity is a **prototype stand-in** (`X-KB-User` header / `kb_user` cookie nami
 Replace with company SSO; for the CRM, add a service credential that maps to a user or acts on
 behalf of one, so RLS still applies.
 
+## Chat
+
+`POST /api/chat {message, history, filters}`:
+1. `retrieve_passages` runs full-text search as the user (RLS applies) with the question's terms
+   ORed, so natural questions still match; short follow-ups are combined with the previous question.
+2. `llm.answer` sends the top passages (numbered) to the model with instructions to answer only
+   from them and cite `[n]`; temperature 0. No model configured, no results, or a model error each
+   return the passages with a clear `mode` instead of failing.
+3. Question, answer, model and the exact sources are written to `chat_log` (readable only by the
+   asker) for audit.
+
+The model never sees a document the user couldn't open themselves.
+
 ## CRM integration points (ready, unused until the CRM is connected)
+
+Hidden in the UI for now; set `SHOW_CRM=1` to show the CRM record fields again.
 
 - `document_links (system, entity_type, entity_id)` ties a document to CRM records by the CRM's own ids.
 - Upload accepts `crm_entity_type` / `crm_entity_id`; `POST /api/documents/{id}/links` adds more.
@@ -113,6 +132,9 @@ text and weighted document metadata; one result per document showing its best pa
 ```sh
 cp .env.example .env            # set real passwords
 docker compose up -d            # http://localhost:8000
+# optional written answers in chat:
+docker compose --profile llm up -d && docker compose exec ollama ollama pull qwen2.5:7b-instruct
+# then set LLM_MODEL=qwen2.5:7b-instruct in .env and `docker compose up -d app`
 python -m scripts.ingest_folder ./samples --dry-run                       # check extraction only
 docker compose exec app python -m scripts.ingest_folder /data/inbox --owner alice --visibility shared
 ```

@@ -41,7 +41,8 @@ table.grid th{background:var(--surface-2)}
 <body>
 <header>
   <a class="brand" href="/">Knowledge Bank</a>
-  {% if user %}<span class="who">{{ user.display_name }} · <a href="/logout">switch user</a></span>{% endif %}
+  {% if user %}<nav class="small"><a href="/">Chat</a> · <a href="/search">Search documents</a></nav>
+  <span class="who">{{ user.display_name }} · <a href="/logout">switch user</a></span>{% endif %}
 </header>
 <main>{% block body %}{% endblock %}</main>
 </body>

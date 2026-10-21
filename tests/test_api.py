@@ -127,7 +127,7 @@ def test_duplicate_upload_is_noop(client, tmp_path):
     first = upload(client, p)
     with p.open("rb") as f:
         r = client.post("/api/documents", headers=as_("alice"), files={"file": ("b.docx", f)})
-    assert r.json() == {"id": first, "created": False}
+    assert (r.json()["id"], r.json()["created"]) == (first, False)
 
 
 def test_crm_links(client, tmp_path):
@@ -169,8 +169,75 @@ def test_ui_pages_render(client, tmp_path):
     doc_id = upload(client, policy_pdf(tmp_path / "p.pdf", t))
     assert "Who are you?" in client.get("/").text
     client.cookies.set("kb_user", "alice")
-    page = client.get(f"/?q={t}").text
+    chat = client.get("/").text
+    assert "Ask the knowledge bank" in chat and "CRM" not in chat
+    page = client.get(f"/search?q={t}").text
+    assert "CRM" not in page
     assert f"/documents/{doc_id}" in page and "<mark>" in page
     detail = client.get(f"/documents/{doc_id}").text
     assert "Annual premium (S$)" in detail and "inferred" in detail
     client.cookies.clear()
+
+
+def test_chat_without_model_returns_cited_passages(client, tmp_path, monkeypatch):
+    from tests.fixtures import policy_pdf
+    monkeypatch.delenv("LLM_URL", raising=False)
+    t = token()
+    doc_id = upload(client, policy_pdf(tmp_path / "p.pdf", t), visibility="private")
+    # a natural question: not every word is in the document, retrieval still finds the page
+    res = client.post("/api/chat", headers=as_("alice"),
+                      json={"message": f"How much does {t} cost to cover hospitalisation?"}).json()
+    assert res["mode"] == "passages"
+    assert res["sources"][0]["document_id"] == doc_id
+    assert res["sources"][0]["url"] == f"/api/documents/{doc_id}/file#page=1"
+    assert "<mark>" in res["sources"][0]["snippet"]
+    # bob can't see alice's private document through chat either
+    res = client.post("/api/chat", headers=as_("bob"), json={"message": f"{t} hospitalisation"}).json()
+    assert doc_id not in [s["document_id"] for s in res["sources"]]
+
+
+def test_chat_with_model_gets_only_visible_passages_and_is_logged(client, tmp_path, monkeypatch):
+    from app import db, llm
+    from tests.fixtures import policy_docx
+    monkeypatch.setenv("LLM_URL", "http://llm.invalid")
+    monkeypatch.setenv("LLM_MODEL", "test-model")
+    seen = {}
+
+    def fake_complete(messages):
+        seen["messages"] = messages
+        return "Early stage pays 25% [1]."
+    monkeypatch.setattr(llm, "complete", fake_complete)
+
+    t = token()
+    doc_id = upload(client, policy_docx(tmp_path / "b.docx", t), visibility="shared")
+    history = [{"role": "user", "content": f"Tell me about {t}"}, {"role": "assistant", "content": "Sure."}]
+    res = client.post("/api/chat", headers=as_("bob"),
+                      json={"message": "does it cover early stages?", "history": history}).json()
+    assert res["mode"] == "llm" and res["answer"] == "Early stage pays 25% [1]."
+    assert res["sources"][0]["document_id"] == doc_id      # follow-up used the earlier question's words
+    prompt = seen["messages"][-1]["content"]
+    assert prompt.startswith("Sources:\n\n[1] ") and t in prompt and prompt.endswith("Question: does it cover early stages?")
+    assert seen["messages"][1] == history[0]
+
+    with db.as_user(db.user_by_name("bob")["id"]) as conn:
+        row = conn.execute("SELECT question, model, sources FROM chat_log WHERE id = %s", (res["id"],)).fetchone()
+    assert row["model"] == "test-model" and row["sources"][0]["document_id"] == doc_id
+    with db.as_user(db.user_by_name("alice")["id"]) as conn:  # chat logs are private to their user
+        assert conn.execute("SELECT 1 FROM chat_log WHERE id = %s", (res["id"],)).fetchone() is None
+
+
+def test_chat_model_failure_falls_back_to_passages(client, tmp_path, monkeypatch):
+    from app import llm
+    from tests.fixtures import policy_pdf
+    monkeypatch.setenv("LLM_URL", "http://llm.invalid")
+    monkeypatch.setenv("LLM_MODEL", "test-model")
+    monkeypatch.setattr(llm, "complete", lambda m: (_ for _ in ()).throw(ConnectionError("down")))
+    t = token()
+    upload(client, policy_pdf(tmp_path / "p.pdf", t))
+    res = client.post("/api/chat", headers=as_("alice"), json={"message": f"{t} premium"}).json()
+    assert res["mode"] == "llm_error" and res["sources"]
+
+
+def test_chat_no_results(client):
+    res = client.post("/api/chat", headers=as_("alice"), json={"message": token()}).json()
+    assert res["mode"] == "no_results" and res["sources"] == []
