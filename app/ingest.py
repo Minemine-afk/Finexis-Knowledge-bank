@@ -2,20 +2,15 @@
 from __future__ import annotations
 
 import hashlib
-import os
-import shutil
 from pathlib import Path
 
 import psycopg
 from psycopg.types.json import Jsonb
 
+from . import storage
 from .extract import Extracted, extract, parse_date
 
 METADATA_FIELDS = ("issuer", "product_type", "policy_name", "effective_date", "document_type", "version")
-
-
-def storage_dir() -> Path:
-    return Path(os.environ.get("STORAGE_DIR", "./data/files")).resolve()
 
 
 def sha256_of(path: Path) -> str:
@@ -24,16 +19,6 @@ def sha256_of(path: Path) -> str:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
-
-
-def store_file(src: Path, sha: str) -> str:
-    """Content-addressed copy under STORAGE_DIR. Returns the path relative to it."""
-    rel = Path(sha[:2]) / f"{sha}{src.suffix.lower()}"
-    dest = storage_dir() / rel
-    if not dest.exists():
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(src, dest)
-    return rel.as_posix()
 
 
 def merge_metadata(given: dict, suggested: dict) -> tuple[dict, dict]:
@@ -77,7 +62,8 @@ def ingest_file(conn: psycopg.Connection, owner_id: int, src: Path, file_name: s
     metadata = dict(metadata or {})
     values, source = merge_metadata(metadata, ex.metadata)
     title = (metadata.get("title") or "").strip() or Path(file_name).stem.replace("_", " ")
-    rel = store_file(src, sha)
+    rel = f"{sha[:2]}/{sha}{src.suffix.lower()}"
+    storage.save(src, rel, ex.mime_type)
 
     doc_id = conn.execute(
         """INSERT INTO documents (owner_id, visibility, title, file_name, storage_path, mime_type, sha256,

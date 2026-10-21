@@ -6,7 +6,9 @@ because access control lives in the database, keyed on the user id.
 """
 from __future__ import annotations
 
+import base64
 import os
+import secrets
 import tempfile
 from contextlib import asynccontextmanager
 from datetime import date
@@ -14,7 +16,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup
 from psycopg.types.json import Jsonb
@@ -22,7 +24,8 @@ from pydantic import BaseModel
 
 from . import db, llm
 from .extract import MIME_TYPES
-from .ingest import METADATA_FIELDS, add_link, ingest_file, merge_metadata, storage_dir
+from . import storage
+from .ingest import METADATA_FIELDS, add_link, ingest_file, merge_metadata
 from .search import DOC_COLUMNS, Filters, facets, retrieve_passages, search, search_table_rows
 
 @asynccontextmanager
@@ -32,6 +35,25 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Finexis Knowledge Bank", version="0.1.0", lifespan=lifespan)
+
+
+# While identity is still the prototype "pick a user" screen, a hosted test copy must not be open
+# to the internet: SITE_PASSWORD puts one shared password (HTTP Basic, any username) in front of
+# everything except the health check. Remove once company sign-in replaces the prototype login.
+@app.middleware("http")
+async def site_password(request: Request, call_next):
+    password = os.environ.get("SITE_PASSWORD")
+    if password and request.url.path != "/api/health":
+        header = request.headers.get("authorization", "")
+        try:
+            scheme, _, encoded = header.partition(" ")
+            given = base64.b64decode(encoded).decode().partition(":")[2] if scheme.lower() == "basic" else ""
+        except (ValueError, UnicodeDecodeError):
+            given = ""
+        if not secrets.compare_digest(given.encode(), password.encode()):
+            return Response("Password required", status_code=401,
+                            headers={"WWW-Authenticate": 'Basic realm="Knowledge Bank"'})
+    return await call_next(request)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 # CRM fields are hidden in the UI until the CRM is connected; the API and schema support them already.
 templates.env.globals["show_crm"] = os.environ.get("SHOW_CRM", "") == "1"
@@ -138,11 +160,7 @@ def api_file(user: User, doc_id: int):
                            (doc_id,)).fetchone()
     if doc is None:
         raise HTTPException(404, "Document not found")
-    path = storage_dir() / doc["storage_path"]
-    if not path.is_file():
-        raise HTTPException(410, "Original file is missing from storage")
-    # inline so the browser's PDF viewer honours #page=N
-    return FileResponse(path, media_type=doc["mime_type"], filename=doc["file_name"], content_disposition_type="inline")
+    return storage.serve(doc["storage_path"], doc["mime_type"], doc["file_name"])
 
 
 @app.post("/api/documents", status_code=201)

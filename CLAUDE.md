@@ -81,12 +81,15 @@ independent of the backend below.
 | `app/extract.py` | File → pages, tables, suggested metadata. Pure, no DB. |
 | `app/ingest.py` | Hash, store file (content-addressed under `STORAGE_DIR`), extract, insert in one transaction. |
 | `app/search.py` | Full-text search + filters, table-row search, facets, search log, chat passage retrieval. |
-| `app/llm.py` | Optional local model (Ollama or OpenAI-compatible): prompt, call, fallbacks. |
+| `app/llm.py` | Optional model: local (Ollama / OpenAI-compatible) or cloud (Anthropic); prompt, call, fallbacks. |
+| `app/storage.py` | Original files: local disk, Supabase Storage, or S3-compatible (S3, Cloudflare R2). |
 | `app/main.py` | FastAPI: JSON API under `/api`, chat UI at `/`, search UI at `/search`. |
 | `app/db.py` | Connection pool; `as_user(id)` sets `app.user_id` for RLS. |
 | `db/init/` | Roles, schema + RLS policies, dev users. Run once by the Postgres image on an empty volume. |
 | `scripts/ingest_folder.py` | Bulk ingest + extraction report (`--dry-run` needs no DB). |
 | `scripts/backup.sh` | `pg_dump` + rsync of original files, keeps 14 dumps. |
+| `scripts/supabase_init.sh` | One-time schema setup on a Supabase project (the hosted equivalent of `db/init`). |
+| `render.yaml` | Render blueprint for the hosted test copy. |
 
 ## Access control
 
@@ -146,6 +149,24 @@ pip install -r requirements-dev.txt     # and tesseract-ocr from the OS
 # on a scratch DB: run db/init/01_roles.sh (with KB_APP_PASSWORD), 02_schema.sql, 03_dev_users.sql
 DATABASE_URL=postgresql://kb_app:<pw>@localhost:5432/knowledge_bank pytest -q
 ```
+
+## Hosted test setup (Render + Supabase)
+
+For a test phase with **public documents only** (compliance has not cleared client data in the cloud):
+
+1. Supabase project in the Singapore region. Run `scripts/supabase_init.sh` with the project's
+   direct DB URL and a new `KB_APP_PASSWORD`. Create a **private** bucket `documents`.
+2. Render: New > Blueprint > this repo (reads `render.yaml`). Set `SITE_PASSWORD`,
+   `DATABASE_URL` (Supabase *session* pooler, port 5432, user `kb_app.<project-ref>`; avoid the
+   6543 transaction pooler), `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and the model settings.
+3. `SITE_PASSWORD` is mandatory while login is the prototype user picker: without it anyone with
+   the URL could pick any user.
+
+Notes: the app talks to Postgres directly as `kb_app`, so RLS works as on Docker; Supabase's REST
+API roles are revoked from these tables. Files are served through short-lived signed links after
+the app's own access check. With a cloud model, retrieved passages are sent to that provider.
+Vercel / Cloudflare Workers are not suitable as-is (request size limits, no Tesseract/PyMuPDF);
+Cloudflare Containers or any Docker host would work.
 
 Schema changes: there is no migration tool yet; `db/init` only runs on an empty volume. Add one
 (e.g. plain numbered SQL files applied by a script) before the first real data goes in.

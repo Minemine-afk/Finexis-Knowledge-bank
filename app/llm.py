@@ -5,7 +5,9 @@ control still holds), and is told to answer from them alone and cite them. With 
 configured, chat still works: it returns the passages themselves.
 
     LLM_API=ollama   LLM_URL=http://localhost:11434   LLM_MODEL=qwen2.5:7b-instruct
-    LLM_API=openai   LLM_URL=http://localhost:8080    LLM_MODEL=local   (llama.cpp server, vLLM, LM Studio)
+    LLM_API=openai   LLM_URL=http://localhost:8080    LLM_MODEL=local   (llama.cpp server, vLLM, LM Studio,
+                                                                       or a hosted OpenAI-compatible API + LLM_API_KEY)
+    LLM_API=anthropic  ANTHROPIC_API_KEY=…  LLM_MODEL=claude-opus-5-5     (cloud; passages leave your network)
 """
 from __future__ import annotations
 
@@ -25,7 +27,13 @@ Answer the user's question using ONLY the numbered sources provided with it.
 MAX_HISTORY_TURNS = 6
 
 
+def api() -> str:
+    return os.environ.get("LLM_API", "ollama").lower()
+
+
 def configured() -> bool:
+    if api() == "anthropic":
+        return bool(os.environ.get("LLM_MODEL"))
     return bool(os.environ.get("LLM_URL") and os.environ.get("LLM_MODEL"))
 
 
@@ -55,24 +63,44 @@ def build_messages(question: str, history: list[dict], passages: list[dict]) -> 
 
 def complete(messages: list[dict]) -> str:
     """One non-streaming completion. Temperature 0 so the same question gets the same answer."""
-    api = os.environ.get("LLM_API", "ollama").lower()
-    url = os.environ["LLM_URL"].rstrip("/")
     model = os.environ["LLM_MODEL"]
     timeout = float(os.environ.get("LLM_TIMEOUT", "120"))
-    if api == "ollama":
+    if api() == "anthropic":
+        return _anthropic(messages, model, timeout)
+    url = os.environ["LLM_URL"].rstrip("/")
+    if api() == "ollama":
         r = httpx.post(f"{url}/api/chat", timeout=timeout, json={
             "model": model, "messages": messages, "stream": False,
             "options": {"temperature": 0, "seed": 7, "num_ctx": 8192},
         })
         r.raise_for_status()
         return r.json()["message"]["content"].strip()
-    if api == "openai":
+    if api() == "openai":
         r = httpx.post(f"{url}/v1/chat/completions", timeout=timeout,
                        headers={"Authorization": f"Bearer {os.environ.get('LLM_API_KEY', 'none')}"},
                        json={"model": model, "messages": messages, "temperature": 0, "seed": 7})
         r.raise_for_status()
         return r.json()["choices"][0]["message"]["content"].strip()
-    raise ValueError(f"Unknown LLM_API: {api}")
+    raise ValueError(f"Unknown LLM_API: {api()}")
+
+
+def _anthropic(messages: list[dict], model: str, timeout: float) -> str:
+    import anthropic  # only needed for this provider
+
+    client = anthropic.Anthropic(timeout=timeout)  # reads ANTHROPIC_API_KEY
+    response = client.beta.messages.create(
+        model=model,
+        max_tokens=4000,
+        system=messages[0]["content"],
+        messages=messages[1:],
+        output_config={"effort": os.environ.get("LLM_EFFORT", "low")},  # short grounded answers
+        # if the model declines, the API retries on a fallback model inside the same call
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+    )
+    if response.stop_reason == "refusal":
+        raise RuntimeError("model declined to answer")
+    return "".join(b.text for b in response.content if b.type == "text").strip()
 
 
 def answer(question: str, history: list[dict], passages: list[dict]) -> tuple[str, str]:
