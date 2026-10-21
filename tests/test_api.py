@@ -170,7 +170,7 @@ def test_ui_pages_render(client, tmp_path):
     assert "Who are you?" in client.get("/").text
     client.cookies.set("kb_user", "alice")
     chat = client.get("/").text
-    assert "Ask the knowledge bank" in chat and "CRM" not in chat
+    assert "Ask FinAssistant" in chat and "CRM" not in chat
     page = client.get(f"/search?q={t}").text
     assert "CRM" not in page
     assert f"/documents/{doc_id}" in page and "<mark>" in page

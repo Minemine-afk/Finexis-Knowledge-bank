@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     db.close()
 
 
-app = FastAPI(title="Finexis Knowledge Bank", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="FinAssistant", version="0.1.0", lifespan=lifespan)
 
 
 # While identity is still the prototype "pick a user" screen, a hosted test copy must not be open
@@ -52,7 +52,7 @@ async def site_password(request: Request, call_next):
             given = ""
         if not secrets.compare_digest(given.encode(), password.encode()):
             return Response("Password required", status_code=401,
-                            headers={"WWW-Authenticate": 'Basic realm="Knowledge Bank"'})
+                            headers={"WWW-Authenticate": 'Basic realm="FinAssistant"'})
     return await call_next(request)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 # CRM fields are hidden in the UI until the CRM is connected; the API and schema support them already.

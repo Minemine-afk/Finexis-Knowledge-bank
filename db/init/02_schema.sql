@@ -187,6 +187,11 @@ ALTER TABLE chat_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY chat_log_insert ON chat_log FOR INSERT WITH CHECK (user_id IS NOT DISTINCT FROM kb_current_user());
 CREATE POLICY chat_log_read   ON chat_log FOR SELECT USING (user_id = kb_current_user());
 
+-- Hosted Postgres (Supabase) can switch RLS on for every new table; without a policy the app would
+-- see no users. Reading the user list is harmless here (identity is a prototype stand-in).
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY users_read ON users FOR SELECT TO kb_app USING (true);
+
 GRANT SELECT ON users TO kb_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON documents, pages, doc_tables, table_rows, document_links TO kb_app;
 GRANT SELECT, INSERT ON search_log, chat_log TO kb_app;

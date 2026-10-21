@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Knowledge Bank{% endblock %}</title>
+<title>{% block title %}FinAssistant{% endblock %}</title>
 <style>
 :root{
   --ground:#F4F6F4; --surface:#fff; --surface-2:#EDF1EE; --line:#DCE3DF;
@@ -40,7 +40,7 @@ table.grid th{background:var(--surface-2)}
 </head>
 <body>
 <header>
-  <a class="brand" href="/">Knowledge Bank</a>
+  <a class="brand" href="/">FinAssistant</a>
   {% if user %}<nav class="small"><a href="/">Chat</a> · <a href="/search">Search documents</a></nav>
   <span class="who">{{ user.display_name }} · <a href="/logout">switch user</a></span>{% endif %}
 </header>
