@@ -76,15 +76,25 @@ def require_user(user: Annotated[dict | None, Depends(current_user)]) -> dict:
 User = Annotated[dict, Depends(require_user)]
 
 
+def _date_param(name: str, value: str | None) -> date | None:
+    """Search forms send empty date boxes as "", which means no filter."""
+    if not value or not value.strip():
+        return None
+    try:
+        return date.fromisoformat(value.strip())
+    except ValueError:
+        raise HTTPException(422, f"{name} must be a date like 2026-08-20") from None
+
+
 def filters_from(issuer: str | None = None, product_type: str | None = None,
                  document_type: str | None = None, visibility: str | None = None, mine: bool = False,
-                 date_from: date | None = None, date_to: date | None = None,
+                 date_from: str | None = None, date_to: str | None = None,
                  crm_entity_type: str | None = None, crm_entity_id: str | None = None) -> Filters:
     blank = lambda v: v or None  # empty form fields arrive as ""
     if visibility and visibility not in ("shared", "private"):
         raise HTTPException(422, "visibility must be shared or private")
     return Filters(blank(issuer), blank(product_type), blank(document_type), blank(visibility), mine,
-                   date_from, date_to, blank(crm_entity_type), blank(crm_entity_id))
+                   _date_param("date_from", date_from), _date_param("date_to", date_to), blank(crm_entity_type), blank(crm_entity_id))
 
 
 FilterDep = Annotated[Filters, Depends(filters_from)]

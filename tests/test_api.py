@@ -241,3 +241,11 @@ def test_chat_model_failure_falls_back_to_passages(client, tmp_path, monkeypatch
 def test_chat_no_results(client):
     res = client.post("/api/chat", headers=as_("alice"), json={"message": token()}).json()
     assert res["mode"] == "no_results" and res["sources"] == []
+
+
+def test_search_form_with_empty_dates_works_and_bad_dates_are_rejected(client):
+    page = client.get("/search?issuer=&product_type=&visibility=&mine=true&date_from=&date_to=&q=",
+                      headers=as_("alice"))
+    assert page.status_code == 200
+    assert client.get("/api/search", params={"q": "x", "date_from": ""}, headers=as_("alice")).status_code == 200
+    assert client.get("/api/search", params={"q": "x", "date_to": "soon"}, headers=as_("alice")).status_code == 422
