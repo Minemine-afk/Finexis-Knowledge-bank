@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ doc.title }} · FinAssistant{% endblock %}
+{% block body %}
+<p class="small"><a href="/">← Back to chat</a> · <a href="/search">Search documents</a></p>
+<div class="card">
+  <h2 style="margin:0 0 6px">{{ doc.title }}</h2>
+  <p class="small muted" style="margin:0 0 12px">
+    <span class="tag {{ doc.visibility }}">{{ doc.visibility }}</span>
+    {{ doc.file_name }} · {{ doc.page_count }} page{{ '' if doc.page_count == 1 else 's' }} · owner {{ doc.owner_name }} ·
+    <a href="/api/documents/{{ doc.id }}/file" target="_blank">open original</a>
+  </p>
+  <table class="grid" style="max-width:640px">
+    {% for key, label in [("issuer","Issuer / insurer"),("product_type","Product type"),("policy_name","Policy name"),("effective_date","Effective date"),("document_type","Document type"),("version","Version")] %}
+    <tr><th style="width:180px">{{ label }}</th>
+      <td>{{ doc[key] if doc[key] is not none else '—' }}
+        {% if doc.meta_source.get(key) == 'inferred' %}<span class="tag private" title="Detected from the text; please check">inferred</span>{% endif %}</td></tr>
+    {% endfor %}
+    {% if show_crm %}{% for l in doc.links %}<tr><th>{{ l.system|upper }} {{ l.entity_type }}</th><td>{{ l.entity_id }}</td></tr>{% endfor %}{% endif %}
+  </table>
+</div>
+
+<div class="card small">
+  <h3 style="margin-top:0;font-size:15px">Extraction report</h3>
+  {% set x = doc.extraction %}
+  <p>{{ x.chars }} characters from {{ x.pages }} page(s); {{ x.tables }} table(s), {{ x.table_rows }} row(s).
+  {% if x.ocr_pages %}OCR used on page(s) {{ x.ocr_pages|join(', ') }}.{% endif %}
+  {% if x.empty_pages %}No text found on page(s) {{ x.empty_pages|join(', ') }}.{% endif %}
+  {% if x.chart_candidate_pages %}Possible charts or images on page(s) {{ x.chart_candidate_pages|join(', ') }}.{% endif %}</p>
+  {% for w in x.warnings %}<p class="muted">⚠ {{ w }}</p>{% endfor %}
+</div>
+
+{% for t in doc.tables %}
+<div class="card" id="table-{{ t.id }}">
+  <h3 style="margin-top:0;font-size:15px">Table {{ t.table_no }} on page {{ t.page_no }}
+    <span class="muted small">· {{ t.n_rows }} rows × {{ t.n_cols }} columns · {{ t.extractor }}</span></h3>
+  <div class="scroll"><table class="grid">
+    <tr>{% for h in t.header %}<th>{{ h }}</th>{% endfor %}</tr>
+    {% for r in t.rows %}<tr>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}
+  </table></div>
+  {% if t.n_rows > t.rows|length %}<p class="small muted">Showing first {{ t.rows|length }} rows.</p>{% endif %}
+</div>
+{% endfor %}
+{% endblock %}

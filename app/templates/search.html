@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block body %}
+<style>
+.layout{display:grid;grid-template-columns:250px 1fr;gap:16px}
+@media (max-width:760px){.layout{grid-template-columns:1fr}}
+.filters .field{margin-bottom:10px} .filters select,.filters input{width:100%}
+.searchbar{display:flex;gap:8px} .searchbar input{flex:1}
+.hit{padding:12px 0;border-top:1px solid var(--line)} .hit:first-child{border-top:0}
+.hit h3{margin:0 0 4px;font-size:16px}
+.snippet{color:var(--ink-2);font-size:14px;margin:4px 0}
+details summary{cursor:pointer;color:var(--accent)}
+.upload .row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:10px 0}
+.upload input,.upload select{width:100%}
+</style>
+
+<form method="get" action="/search">
+<div class="layout">
+  <aside class="card filters">
+    {% for key, label in [("issuer","Issuer / insurer"),("product_type","Product type"),("document_type","Document type")] %}
+    <div class="field"><label for="{{ key }}">{{ label }}</label>
+      <select id="{{ key }}" name="{{ key }}"><option value="">Any</option>
+        {% for v in options[key] %}<option {% if f[key]==v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+      </select></div>
+    {% endfor %}
+    <div class="field"><label for="visibility">Visibility</label>
+      <select id="visibility" name="visibility"><option value="">Any</option>
+        <option value="shared" {% if f.visibility=='shared' %}selected{% endif %}>Shared</option>
+        <option value="private" {% if f.visibility=='private' %}selected{% endif %}>Private</option></select></div>
+    <div class="field"><label><input type="checkbox" name="mine" value="true" style="width:auto" {% if f.mine %}checked{% endif %}> Only my documents</label></div>
+    <div class="field"><label for="date_from">Effective from</label><input type="date" id="date_from" name="date_from" value="{{ f.date_from or '' }}"></div>
+    <div class="field"><label for="date_to">Effective to</label><input type="date" id="date_to" name="date_to" value="{{ f.date_to or '' }}"></div>
+    {% if show_crm %}<div class="field"><label for="crm_entity_id">CRM record id</label><input id="crm_entity_id" name="crm_entity_id" value="{{ f.crm_entity_id or '' }}" placeholder="e.g. client id"></div>{% endif %}
+    <button type="submit" style="width:100%">Apply</button>
+    <p class="small"><a href="/search">Clear all</a></p>
+  </aside>
+
+  <section>
+    <div class="card">
+      <div class="searchbar">
+        <input name="q" value="{{ q }}" placeholder='Keywords, "exact phrase", -exclude, or' autofocus>
+        <button type="submit">Search</button>
+      </div>
+    </div>
+
+    <div class="card">
+      {% if not result.results %}
+        <p class="muted">{% if q %}No documents match “{{ q }}” with these filters.{% else %}No documents yet. Upload one below.{% endif %}</p>
+      {% endif %}
+      {% for r in result.results %}
+      <div class="hit">
+        <h3><a href="/documents/{{ r.id }}">{{ r.title }}</a></h3>
+        <div class="small muted">
+          <span class="tag {{ r.visibility }}">{{ r.visibility }}</span>
+          {% for v in [r.issuer, r.product_type, r.document_type] if v %}<span class="tag">{{ v }}</span>{% endfor %}
+          {% if r.effective_date %}effective {{ r.effective_date }} · {% endif %}{{ r.owner_name }}
+        </div>
+        {% if r.snippet %}<p class="snippet">{{ r.snippet }}</p>{% endif %}
+        <div class="small">
+          {% if r.mime_type == 'application/pdf' %}
+            <a href="/api/documents/{{ r.id }}/file#page={{ r.best_page }}" target="_blank">Open at page {{ r.best_page }}</a>
+          {% else %}<a href="/api/documents/{{ r.id }}/file">Download {{ r.file_name }}</a>{% endif %}
+          {% if r.matching_pages > 1 %}<span class="muted"> · {{ r.matching_pages }} matching pages</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% if offset > 0 or result.has_more %}
+      <p class="small">
+        {% if offset > 0 %}<button name="offset" value="{{ [offset - 20, 0]|max }}">Previous</button>{% endif %}
+        {% if result.has_more %}<button name="offset" value="{{ offset + 20 }}">Next</button>{% endif %}
+      </p>
+      {% endif %}
+    </div>
+
+    {% if table_rows %}
+    <div class="card">
+      <h3 style="margin-top:0;font-size:15px">Matching table rows</h3>
+      {% for r in table_rows %}
+      <div class="small" style="margin-bottom:10px">
+        <a href="/documents/{{ r.document_id }}#table-{{ r.table_id }}">{{ r.title }}</a>
+        <span class="muted">· page {{ r.page_no }}, table {{ r.table_no }}, row {{ r.row_no }}</span>
+        <div class="scroll"><table class="grid"><tr>{% for h in r.header %}<th>{{ h }}</th>{% endfor %}</tr>
+          <tr>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr></table></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+</div>
+</form>
+
+<details class="card upload">
+  <summary>Upload a document</summary>
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <div class="row">
+      <div><label>File (PDF, Word, Excel)</label><input type="file" name="file" accept=".pdf,.docx,.xlsx" required></div>
+      <div><label>Visibility</label><select name="visibility"><option value="private">Private (only me)</option><option value="shared">Shared (everyone)</option></select></div>
+      <div><label>Title</label><input name="title" placeholder="defaults to file name"></div>
+      <div><label>Issuer / insurer</label><input name="issuer" placeholder="detected if blank"></div>
+      <div><label>Product type</label><input name="product_type"></div>
+      <div><label>Policy name</label><input name="policy_name"></div>
+      <div><label>Effective date</label><input type="date" name="effective_date"></div>
+      <div><label>Document type</label><input name="document_type" placeholder="detected if blank"></div>
+      <div><label>Version</label><input name="version"></div>
+      {% if show_crm %}
+      <div><label>CRM record type</label><select name="crm_entity_type"><option>client</option><option>policy</option><option>case</option></select></div>
+      <div><label>CRM record id</label><input name="crm_entity_id" placeholder="optional"></div>
+      {% endif %}
+    </div>
+    <button type="submit">Upload and extract</button>
+  </form>
+</details>
+{% endblock %}

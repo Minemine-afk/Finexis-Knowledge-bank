@@ -1,0 +1,53 @@
+# Prototype stack: Postgres 16 + the app. Everything stays on this machine.
+#   cp .env.example .env   (then change the passwords)
+#   docker compose up -d   -> http://localhost:8000
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: knowledge_bank
+      POSTGRES_USER: kb_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      KB_APP_PASSWORD: ${KB_APP_PASSWORD:?set in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"   # localhost only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kb_admin -d knowledge_bank"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://kb_app:${KB_APP_PASSWORD}@db:5432/knowledge_bank
+      STORAGE_DIR: /data/files
+      LLM_API: ${LLM_API:-ollama}
+      LLM_URL: ${LLM_URL:-http://ollama:11434}
+      LLM_MODEL: ${LLM_MODEL:-}
+    volumes:
+      - ./data/files:/data/files      # original files: the source of truth, back this up
+      - ./data/inbox:/data/inbox:ro   # drop folders here for bulk ingest
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  # Optional: local model for written chat answers. Starts only with `--profile llm`.
+  # CPU works for 3B-8B models (expect ~5-30 s per answer on a laptop); a GPU makes it fast.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+
+volumes:
+  pgdata:
+  ollama:

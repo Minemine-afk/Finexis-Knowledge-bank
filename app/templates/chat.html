@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}FinAssistant{% endblock %}
+{% block body %}
+<style>
+/* The page is exactly one screen tall: header on top, chat fills the rest, and only the message list scrolls. */
+body{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+main{max-width:none;width:100%;padding:0;flex:1;min-height:0}
+.chat-shell{display:grid;grid-template-columns:260px minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100%;position:relative}
+.side{border-right:1px solid var(--line);background:var(--surface);padding:16px;overflow-y:auto;min-height:0}
+.side h4{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);margin:18px 0 8px}
+.side .field{margin-bottom:10px} .side select{width:100%}
+.side .stat{font-size:13px;color:var(--ink-2)}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line);width:100%;text-align:left}
+.btn-ghost:hover{background:var(--surface-2)}
+.convo{display:flex;flex-direction:column;min-width:0;min-height:0}
+.log{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:24px 16px}
+.inner{max-width:780px;margin:0 auto}
+.msg{margin:0 0 22px;display:flex;gap:12px}
+.avatar{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600}
+.msg.user .avatar{background:var(--surface-2);color:var(--ink-2)}
+.msg.bot .avatar{background:var(--accent);color:#fff}
+.msg.note .avatar{background:var(--mark);color:var(--warn)}
+.bubble{min-width:0;flex:1}
+.msg.user .text{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:inline-block;white-space:pre-wrap}
+.text p{margin:0 0 10px} .text ul{margin:0 0 10px;padding-left:20px}
+.cite{display:inline-block;min-width:18px;padding:0 5px;margin:0 1px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600;text-decoration:none;vertical-align:1px;text-align:center}
+.mode{display:inline-block;font-size:12px;color:var(--warn);background:var(--mark);border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.sources{display:grid;gap:8px;margin-top:10px}
+.src{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 12px;font-size:13px}
+.src.flash{outline:2px solid var(--accent)}
+.src .head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.src .num{font-weight:600;color:var(--accent)}
+.src .title{font-weight:600;color:var(--ink)}
+.src .snip{color:var(--ink-2);margin:4px 0}
+.thinking{color:var(--ink-3);font-style:italic}
+.empty{text-align:center;padding:8vh 0 0}
+.empty h2{font-weight:600;margin:0 0 6px}
+.suggest{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.suggest button{background:var(--surface);color:var(--ink-2);border:1px solid var(--line);border-radius:99px;font-size:13px}
+.composer{flex:none;border-top:1px solid var(--line);background:var(--surface);padding:12px 16px}
+.composer form{max-width:780px;margin:0 auto;display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;resize:none;font:inherit;color:inherit;background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:180px}
+.icon-btn{background:transparent;color:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.composer .hint{max-width:780px;margin:6px auto 0;font-size:12px;color:var(--ink-3)}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(440px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog .field{margin-bottom:12px} dialog input,dialog select{width:100%}
+.menu-btn{display:none}
+@media (max-width:760px){
+  .chat-shell{grid-template-columns:1fr}
+  .side{display:none;position:absolute;inset:0;z-index:5}
+  .side.open{display:block}
+  .menu-btn{display:inline-block}
+}
+</style>
+
+<div class="chat-shell">
+  <aside class="side" id="side">
+    <button class="btn-ghost" id="newChat" type="button">＋ New chat</button>
+    <h4>Library</h4>
+    <p class="stat">{{ counts.total }} document{{ '' if counts.total == 1 else 's' }} you can see, {{ counts.mine }} uploaded by you.</p>
+    <button class="btn-ghost" type="button" id="openUpload">⇪ Upload documents</button>
+
+    <h4>Only look in</h4>
+    {% for key, label in [("issuer","Issuer / insurer"),("product_type","Product type"),("document_type","Document type")] %}
+    <div class="field"><label for="f_{{ key }}">{{ label }}</label>
+      <select id="f_{{ key }}" data-filter="{{ key }}"><option value="">Any</option>
+        {% for v in options[key] %}<option>{{ v }}</option>{% endfor %}</select></div>
+    {% endfor %}
+    <div class="field"><label for="f_visibility">Visibility</label>
+      <select id="f_visibility" data-filter="visibility"><option value="">Shared and private</option>
+        <option value="shared">Shared only</option><option value="private">Private only</option></select></div>
+    <div class="field"><label><input type="checkbox" id="f_mine" style="width:auto"> Only my documents</label></div>
+
+    <h4>Answers</h4>
+    <p class="stat">{% if model %}Written by <b>{{ model }}</b> (local) from your documents, with sources.{% else %}No language model connected: you'll get the most relevant passages with links to the pages.{% endif %}</p>
+  </aside>
+
+  <section class="convo">
+    <div class="log" id="log"><div class="inner" id="inner">
+      <div class="empty" id="empty">
+        <h2>Ask FinAssistant</h2>
+        <p class="muted">Answers come only from documents you're allowed to see, and every answer shows its sources.</p>
+        <div class="suggest">
+          <button type="button">What is the waiting period for pre-existing conditions?</button>
+          <button type="button">Show premium rates by age band</button>
+          <button type="button">Which plans pay out for early-stage critical illness?</button>
+        </div>
+      </div>
+    </div></div>
+    <div class="composer">
+      <form id="form">
+        <button class="icon-btn menu-btn" type="button" id="menu" title="Filters">☰</button>
+        <button class="icon-btn" type="button" id="attach" title="Upload documents">⇪</button>
+        <textarea id="input" rows="1" placeholder="Ask about a policy, product, rate or rule…" autofocus></textarea>
+        <button type="submit" id="send">Send</button>
+      </form>
+      <p class="hint">Enter to send, Shift+Enter for a new line. Information from documents, not financial advice.</p>
+    </div>
+  </section>
+</div>
+
+<dialog id="uploadDlg">
+  <form id="uploadForm" method="dialog">
+    <h3 style="margin-top:0">Upload documents</h3>
+    <div class="field"><label for="u_files">PDF, Word or Excel files</label>
+      <input type="file" id="u_files" multiple accept=".pdf,.docx,.xlsx" required></div>
+    <div class="field"><label for="u_vis">Who can see them</label>
+      <select id="u_vis"><option value="private">Only me (private)</option><option value="shared">Everyone (shared)</option></select></div>
+    <div class="field"><label for="u_issuer">Issuer / insurer (optional)</label><input id="u_issuer" placeholder="detected if blank"></div>
+    <div class="field"><label for="u_type">Document type (optional)</label><input id="u_type" placeholder="detected if blank"></div>
+    <p style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:0">
+      <button type="button" class="icon-btn" id="cancelUpload">Cancel</button>
+      <button type="submit">Upload</button></p>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const inner = $("inner"), log = $("log"), input = $("input"), form = $("form");
+  let history = [];  // this page's conversation only; reloading starts a new chat
+
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  // Minimal, safe formatting: escape everything, then paragraphs, bullets, **bold** and [n] citations.
+  function formatAnswer(text, msgId, nSources) {
+    const blocks = esc(text).split(/\n{2,}/);
+    return blocks.map(b => {
+      const lines = b.split("\n");
+      const html = lines.every(l => /^\s*([-*•]|\d+\.)\s+/.test(l))
+        ? "<ul>" + lines.map(l => "<li>" + l.replace(/^\s*([-*•]|\d+\.)\s+/, "") + "</li>").join("") + "</ul>"
+        : "<p>" + lines.join("<br>") + "</p>";
+      return html
+        .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+        .replace(/\[(\d+)\]/g, (m, n) => +n >= 1 && +n <= nSources
+          ? `<a class="cite" href="#${msgId}-src-${n}" data-target="${msgId}-src-${n}">${n}</a>` : m);
+    }).join("");
+  }
+
+  function scrollDown() { log.scrollTop = log.scrollHeight; }
+
+  function add(kind, html) {
+    $("empty")?.remove();
+    const el = document.createElement("div");
+    el.className = "msg " + kind;
+    el.innerHTML = `<div class="avatar">${kind === "user" ? "You" : kind === "note" ? "!" : "FA"}</div><div class="bubble">${html}</div>`;
+    inner.appendChild(el);
+    scrollDown();
+    return el;
+  }
+
+  const MODE_NOTES = {
+    passages: "Sources only: no language model connected",
+    llm_error: "The language model didn't respond: showing sources",
+    no_results: "No matching documents",
+  };
+
+  function renderAnswer(res) {
+    const id = "m" + res.id;
+    const sources = res.sources.map(s => `
+      <div class="src" id="${id}-src-${s.n}">
+        <div class="head"><span class="num">${s.n}</span>
+          <a class="title" href="/documents/${s.document_id}">${esc(s.title)}</a>
+          <span class="muted">${s.label ? "sheet " + esc(s.label) : "page " + s.page_no}</span>
+          ${s.visibility === "private" ? '<span class="tag private">private</span>' : ""}
+          ${[s.issuer, s.document_type].filter(Boolean).map(v => `<span class="tag">${esc(v)}</span>`).join("")}
+          ${s.effective_date ? `<span class="muted">effective ${esc(s.effective_date)}</span>` : ""}</div>
+        <div class="snip">${s.snippet}</div>
+        <a href="${esc(s.url)}" target="_blank">Open ${s.label ? "file" : "page " + s.page_no}</a>
+      </div>`).join("");
+    return `${MODE_NOTES[res.mode] ? `<span class="mode">${MODE_NOTES[res.mode]}</span>` : ""}
+      <div class="text">${formatAnswer(res.answer, id, res.sources.length)}</div>
+      ${sources ? `<div class="sources">${sources}</div>` : ""}`;
+  }
+
+  function filters() {
+    const f = {};
+    document.querySelectorAll("[data-filter]").forEach(el => { if (el.value) f[el.dataset.filter] = el.value; });
+    if ($("f_mine").checked) f.mine = true;
+    return f;
+  }
+
+  async function ask(question) {
+    add("user", `<div class="text">${esc(question)}</div>`);
+    const pending = add("bot", `<div class="thinking">Searching your documents…</div>`);
+    $("send").disabled = true;
+    try {
+      const r = await fetch("/api/chat", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: question, history, ...filters()}),
+      });
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+      const res = await r.json();
+      pending.querySelector(".bubble").innerHTML = renderAnswer(res);
+      history.push({role: "user", content: question}, {role: "assistant", content: res.answer});
+      history = history.slice(-12);
+    } catch (e) {
+      pending.className = "msg note";
+      pending.querySelector(".bubble").innerHTML = `<div class="text">Something went wrong: ${esc(e.message)}</div>`;
+    } finally {
+      $("send").disabled = false;
+      scrollDown();
+    }
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = ""; input.style.height = "";
+    ask(q);
+  });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+  input.addEventListener("input", () => { input.style.height = ""; input.style.height = input.scrollHeight + "px"; });
+  document.querySelectorAll(".suggest button").forEach(b => b.addEventListener("click", () => ask(b.textContent)));
+  inner.addEventListener("click", e => {
+    const t = e.target.closest(".cite");
+    if (!t) return;
+    e.preventDefault();
+    const el = document.getElementById(t.dataset.target);
+    el.scrollIntoView({behavior: "smooth", block: "center"});
+    el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200);
+  });
+  $("newChat").addEventListener("click", () => {
+    location.reload();
+  });
+  $("menu").addEventListener("click", () => $("side").classList.toggle("open"));
+
+  // Uploads
+  const dlg = $("uploadDlg");
+  [$("attach"), $("openUpload")].forEach(b => b.addEventListener("click", () => dlg.showModal()));
+  $("cancelUpload").addEventListener("click", () => dlg.close());
+  $("uploadForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const files = [...$("u_files").files];
+    if (!files.length) return;
+    dlg.close();
+    for (const file of files) {
+      const note = add("bot", `<div class="thinking">Reading ${esc(file.name)}…</div>`);
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("visibility", $("u_vis").value);
+      fd.append("issuer", $("u_issuer").value);
+      fd.append("document_type", $("u_type").value);
+      try {
+        const r = await fetch("/api/documents", {method: "POST", body: fd});
+        const res = await r.json();
+        if (!r.ok) throw new Error(res.detail || r.statusText);
+        const d = res.document, x = d.extraction || {};
+        const found = [d.issuer, d.document_type, d.effective_date && "effective " + d.effective_date].filter(Boolean);
+        note.querySelector(".bubble").innerHTML = `<div class="text"><p>${res.created ? "Added" : "Already in the library:"}
+          <a href="/documents/${d.id}">${esc(d.title)}</a> (${d.visibility}). ${x.pages} page${x.pages === 1 ? "" : "s"},
+          ${x.tables} table${x.tables === 1 ? "" : "s"}${x.ocr_pages?.length ? `, OCR used on ${x.ocr_pages.length} page(s)` : ""}.
+          ${found.length ? "Detected: " + esc(found.join(" · ")) + ". Check these on the document page." : ""}</p></div>`;
+      } catch (err) {
+        note.className = "msg note";
+        note.querySelector(".bubble").innerHTML = `<div class="text">Couldn't add ${esc(file.name)}: ${esc(err.message)}</div>`;
+      }
+    }
+    $("uploadForm").reset();
+  });
+})();
+</script>
+{% endblock %}

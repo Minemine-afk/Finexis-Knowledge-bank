@@ -1,0 +1,29 @@
+# Render blueprint for the hosted TEST copy (public documents only until compliance signs off).
+# New > Blueprint > pick this repo. Fill in the "sync: false" values in the Render dashboard.
+# Database and files live in Supabase: see "Hosted test setup" in CLAUDE.md.
+services:
+  - type: web
+    name: finexis-knowledge-bank
+    runtime: docker
+    region: singapore
+    plan: free                    # 512 MB, sleeps when idle; "starter" (USD 7/mo) if uploads struggle
+    healthCheckPath: /api/health
+    envVars:
+      - key: SITE_PASSWORD          # shared password in front of the whole site
+        sync: false
+      - key: DATABASE_URL           # Supabase session pooler URL, user kb_app.<project-ref>
+        sync: false
+      - key: STORAGE_BACKEND
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: documents
+      - key: LLM_API                # anthropic | openai | ollama
+        value: anthropic
+      - key: LLM_MODEL              # e.g. claude-opus-5-5; leave empty for passages only
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
